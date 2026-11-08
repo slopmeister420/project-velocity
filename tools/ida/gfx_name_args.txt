@@ -1,0 +1,7 @@
+A1::ShaderManagerBase
+CShaderManagerBase::SetColourOp
+CShaderManagerBase::SetAlphaOp
+CShaderManagerBase::SetStageArgs
+CShaderManagerBase::SetBlendMode
+CShaderManagerBase::SetStageFlags
+CShaderManagerBase::CreateShader

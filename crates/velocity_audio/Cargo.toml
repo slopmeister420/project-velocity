@@ -1,0 +1,23 @@
+[package]
+name = "velocity_audio"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+oxideav-wma = { version = "=0.0.4", optional = true }
+# the owned device output (audio/output.rs): same versions as bevy_audio's, so one copy is built
+rodio = { version = "=0.22.2", default-features = false, features = ["playback"] }
+cpal = "=0.17.3"
+
+[dev-dependencies]
+# tests only: the vehicle database's rev band names (VehicleAudio::model)
+velocity_physics.workspace = true
+
+[features]
+# decode the soundtrack .wma files (pure rust, measured ~20 dB snr vs a reference decoder)
+wma = ["dep:oxideav-wma"]

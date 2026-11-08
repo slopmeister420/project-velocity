@@ -1,0 +1,15 @@
+[package]
+name = "velocity_ai"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+velocity_game.workspace = true
+velocity_physics.workspace = true
+# FlareFlash (FlareRender 0x001270E0) and the render car matrices (CarRender car data)
+visos_render.workspace = true

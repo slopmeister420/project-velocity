@@ -1,0 +1,18 @@
+[package]
+name = "velocity_frontend"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+velocity_game.workspace = true
+velocity_physics.workspace = true
+visos_render.workspace = true
+velocity_audio.workspace = true
+# fecapture only (teams capture: `TeamDatabase::load`); the screens read teams through velocity_game::career_teams
+velocity_ai.workspace = true
+png = "0.18"

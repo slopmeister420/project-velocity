@@ -1,0 +1,5 @@
+00152860 00154BD0 D:/projects/project poland rewrite/research/gfx/ts_tyrespray.c
+002C5A60 002CECC0 D:/projects/project poland rewrite/research/gfx/ts_elmgr.c
+002CECC0 002D2E60 D:/projects/project poland rewrite/research/gfx/ts_elsys.c
+00317890 00318520 D:/projects/project poland rewrite/research/gfx/ts_elrend_xbox.c
+00343290 00344610 D:/projects/project poland rewrite/research/gfx/ts_elrend.c

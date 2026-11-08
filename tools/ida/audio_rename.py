@@ -1,0 +1,53 @@
+import idc, ida_name
+# visos audio layer names (audio agent)
+N = {
+    0x2B9A00: "AUDIO_SetEnvironment", 0x2B9A90: "AUDIO_SetDopplerParams", 0x2B9AF0: "AUDIO_ApplyVolumePreset",
+    0x2B9BC0: "AUDIO_SetMasterVolume", 0x2B9C50: "AUDIO_SetCategoryVolume", 0x2B9D00: "AUDIO_LoadVolumePresets",
+    0x2B9DF0: "AUDIO_CreateEmitter", 0x2B9F70: "AUDIO_CreateListener", 0x2BA0F0: "AUDIO_SetControlParam",
+    0x2BA1D0: "AUDIO_SetDefaultEmitterDistances", 0x2BA220: "AUDIO_Init", 0x2BB210: "AUDIO_InitParams__ctor",
+    0x2BB3E0: "_AUDIO_FindEvent", 0x2BB480: "_AUDIO_AddEventLookup", 0x2BB5F0: "_AUDIO_LinkActiveEvent",
+    0x2BB630: "_AUDIO_UnlinkActiveEvent", 0x2BB690: "_AUDIO_DetachActiveEvent", 0x2BB870: "_AUDIO_ReplaceEventHandle",
+    0x2BB8A0: "_AUDIO_AdoptChildEvents", 0x2BB910: "_AUDIO_RandomFloat", 0x2BB920: "_AUDIO_SelectSound",
+    0x2BBAB0: "_AUDIO_SoundVolume", 0x2BBB90: "_AUDIO_SoundPitch", 0x2BBC70: "_AUDIO_SoundDelay",
+    0x2BBD50: "_AUDIO_SelectSample", 0x2BBEE0: "_AUDIO_SelectChain", 0x2BC070: "_AUDIO_WeightedSelect",
+    0x2BC2F0: "AUDIO_GetEventSounds", 0x2BC360: "AUDIO_GetEventPitchMin", 0x2BC380: "AUDIO_GetEventPitchMax",
+    0x2BC3E0: "AUDIO_GetActiveEventCount", 0x2BC3F0: "AUDIO_GetMaxPlayingSamples",
+    0x2BC400: "AUDIO_GetFreePlayingSamples", 0x2BC410: "AUDIO_GetAllocPlayingSamples", 0x2BC420: "AUDIO_Reset",
+    0x2BC840: "AUDIO_DestroyListener", 0x2BC920: "AUDIO_UnloadGroup", 0x2BCB80: "AUDIO_StopEvent",
+    0x2BCCD0: "AUDIO_DestroyEmitter", 0x2BCE00: "AUDIO_StopAllEmitterSamples", 0x2BCE70: "AUDIO_SetEmitterVolume",
+    0x2BCF30: "AUDIO_StopEmitterSamples", 0x2BCFE0: "AUDIO_Update", 0x2BD590: "AUDIO_PauseAll",
+    0x2BD610: "AUDIO_ResumeAll", 0x2BD690: "_AUDIO_ReadBytes", 0x2BD6C0: "AUDIO_LoadGroup",
+    0x2BE350: "AUDIO_SetSampleVolume", 0x2BE440: "AUDIO_PlayEvent", 0x2BE540: "AUDIO_SetEmitterDistances",
+    0x2BE5B0: "AUDIO_SetEmitterDirection", 0x2BE7B0: "AUDIO_SetEmitterVelocity", 0x2BE8C0: "AUDIO_SetEmitterPosition",
+    0x2BE9E0: "AUDIO_ResumeSample", 0x2BEAA0: "AUDIO_PauseSample", 0x2BEB80: "AUDIO_SetSamplePan",
+    0x2BEBF0: "AUDIO_SetOutputMode", 0x2BEC60: "AUDIO_SetListenerDirection", 0x2BEEC0: "AUDIO_SetListenerVelocity",
+    0x2BEFE0: "AUDIO_SetListenerPosition", 0x2BF0D0: "AUDIO_FadeToVolumePreset", 0x2BF1D0: "AUDIO_SetSamplePitch",
+    0x311EC0: "_AUDIO_SetEnvironmentM", 0x3120B0: "_AUDIO_Lock", 0x3120C0: "_AUDIO_Unlock",
+    0x312170: "_AUDIO_AllocEmitter", 0x312230: "_AUDIO_FreeEmitter", 0x3122A0: "_AUDIO_AllocListener",
+    0x312320: "_AUDIO_FreeListener", 0x312390: "_AUDIO_AllocPlayingSample", 0x312440: "_AUDIO_FreePlayingSample",
+    0x3124B0: "_AUDIO_AllocStreamBuffer", 0x312540: "_AUDIO_FreeStreamBuffer", 0x3127F0: "_AUDIO_AllocBank",
+    0x312880: "_AUDIO_FreeBank", 0x3128F0: "_AUDIO_AllocSampleHeaders", 0x312940: "_AUDIO_FreeSampleHeaders",
+    0x312980: "_AUDIO_AllocGroup", 0x312A30: "_AUDIO_FreeGroup", 0x312D70: "_AUDIO_AllocActiveEvent",
+    0x312E70: "_AUDIO_FreeActiveEvent", 0x313010: "_AUDIO_ReadStringPtr", 0x3130B0: "_AUDIO_ReadString",
+    0x3133D0: "_AUDIO_CreatePool", 0x3134B0: "_AUDIO_InitM", 0x313B00: "_AUDIO_Log10",
+    0x313B90: "AUDIO_SetMemoryCallbacks", 0x313C10: "AUDIO_UnloadBank", 0x3144E0: "_AUDIO_AllocVoiceM",
+    0x3146C0: "_AUDIO_FreeVoiceM", 0x3147F0: "AUDIO_GetControlParam", 0x3149B0: "AUDIO_StopSample",
+    0x314D20: "_AUDIO_StopVoiceM", 0x314DF0: "_AUDIO_UpdateActiveEvent", 0x315180: "_AUDIO_UpdateEmitter3D",
+    0x315540: "_AUDIO_UpdateEmitterSamples", 0x315870: "_AUDIO_UpdateListener", 0x3158D0: "_AUDIO_CommitM",
+    0x316450: "AUDIO_LoadBank", 0x316B90: "_AUDIO_JoinPath", 0x316EC0: "_AUDIO_FindGroup",
+    0x316FB0: "_AUDIO_PlayEvent", 0x317460: "_AUDIO_ResumeVoiceM", 0x3175A0: "_AUDIO_PauseVoiceM",
+    0x341260: "_AUDIO_UnloadBankDataM", 0x341430: "_AUDIO_RateIndex", 0x341540: "_AUDIO_RateFromFormat",
+    0x341600: "_AUDIO_FormatTag", 0x341640: "_AUDIO_IsSoftwareSample", 0x341690: "_AUDIO_StreamReadM",
+    0x3418C0: "_AUDIO_UpdateSampleM", 0x341BD0: "_AUDIO_UpdateListenerM", 0x341EA0: "_AUDIO_UpdateSoftwareMixM",
+    0x3422F0: "_AUDIO_LoadBankDataM", 0x3424B0: "_AUDIO_FindBank", 0x3425A0: "AUDIO_PlaySample",
+    0x342A50: "AUDIO_QueueSample", 0x342E10: "_AUDIO_EventSampleCallback", 0x342F80: "_AUDIO_ApplySamplePitchM",
+    0x343080: "_AUDIO_ApplySampleVolumeM", 0x350D30: "_AUDIO_StreamReadDoneM", 0x3511A0: "_AUDIO_UpdateVoiceM",
+    0x3515A0: "_AUDIO_SetupVoiceM", 0x351B00: "_AUDIO_SoftwareMixM", 0x351CB0: "_AUDIO_StartSampleM",
+    0x351F40: "_AUDIO_SampleVolume", 0x354F80: "_AUDIO_MixDown", 0x355480: "_AUDIO_Resample8",
+    0x355800: "_AUDIO_Resample16",
+}
+bad = []
+for ea, n in N.items():
+    if not idc.set_name(ea, n, ida_name.SN_NOWARN | ida_name.SN_NOCHECK):
+        bad.append(hex(ea))
+print("renamed", len(N) - len(bad), "failed", bad)

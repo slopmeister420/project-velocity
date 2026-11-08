@@ -1,0 +1,13 @@
+/target
+/.venv-ida
+/research/*.i64
+/research/*.id0
+/research/*.id1
+/research/*.id2
+/research/*.nam
+/research/*.til
+/research/default.xbe
+/dist
+/research/video
+/research/screens
+/research

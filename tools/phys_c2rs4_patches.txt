@@ -1,0 +1,1085 @@
+=== 1D1850
+<<<
+        if ( *(int *)(LODWORD(v129[247]) + 3216) <= 90 )
+        {
+          if ( *(_DWORD *)(LODWORD(v129[246]) + 160) == 0 )
+            goto LABEL_397;
+LABEL_396:
+          AUDIO_Resample__35D4B0((int *)(LODWORD(v129[247]) + 240), *(float *)(LODWORD(v129[246]) + 36), 0);
+          goto LABEL_398;
+        }
+      }
+      else
+      {
+        v41 = AUDIO_Resample__35D1E0(LODWORD(v129[247]) + 240);
+        *(_DWORD *)(LODWORD(v129[247]) + 3216) = v41;
+        if ( *(int *)(LODWORD(v129[247]) + 3216) > 0 )
+        {
+          v42 = VsConfigFileRead__1B74A0((int *)LODWORD(v129[247]));
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) = v42;
+        }
+        else
+        {
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) = 1;
+        }
+        if ( *(int *)(LODWORD(v129[247]) + 3216) <= 90 )
+        {
+          if ( *(_DWORD *)(LODWORD(v129[246]) + 160) == 0 )
+          {
+LABEL_397:
+            AUDIO_Resample__35D4B0(
+              (int *)(LODWORD(v129[247]) + 240),
+              *(float *)(LODWORD(v129[246]) + 36),
+              *(_DWORD *)(*(_DWORD *)(LODWORD(v129[247]) + 3552) + 108));
+            goto LABEL_398;
+          }
+          goto LABEL_396;
+        }
+      }
+      *(_DWORD *)(LODWORD(v129[247]) + 3216) -= 100;
+      PhysicsCarInput__1BA170((_DWORD *)(LODWORD(v129[247]) + 1444), 0);
+LABEL_398:
+---
+        if ( *(int *)(LODWORD(v129[247]) + 3216) <= 90 )
+        {
+          if ( *(_DWORD *)(LODWORD(v129[246]) + 160) == 0 )
+            AUDIO_Resample__35D4B0(
+              (int *)(LODWORD(v129[247]) + 240),
+              *(float *)(LODWORD(v129[246]) + 36),
+              *(_DWORD *)(*(_DWORD *)(LODWORD(v129[247]) + 3552) + 108));
+          else
+            AUDIO_Resample__35D4B0((int *)(LODWORD(v129[247]) + 240), *(float *)(LODWORD(v129[246]) + 36), 0);
+        }
+        else
+        {
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) -= 100;
+          PhysicsCarInput__1BA170((_DWORD *)(LODWORD(v129[247]) + 1444), 0);
+        }
+      }
+      else
+      {
+        v41 = AUDIO_Resample__35D1E0(LODWORD(v129[247]) + 240);
+        *(_DWORD *)(LODWORD(v129[247]) + 3216) = v41;
+        if ( *(int *)(LODWORD(v129[247]) + 3216) > 0 )
+        {
+          v42 = VsConfigFileRead__1B74A0((int *)LODWORD(v129[247]));
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) = v42;
+        }
+        else
+        {
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) = 1;
+        }
+        if ( *(int *)(LODWORD(v129[247]) + 3216) <= 90 )
+        {
+          if ( *(_DWORD *)(LODWORD(v129[246]) + 160) == 0 )
+            AUDIO_Resample__35D4B0(
+              (int *)(LODWORD(v129[247]) + 240),
+              *(float *)(LODWORD(v129[246]) + 36),
+              *(_DWORD *)(*(_DWORD *)(LODWORD(v129[247]) + 3552) + 108));
+          else
+            AUDIO_Resample__35D4B0((int *)(LODWORD(v129[247]) + 240), *(float *)(LODWORD(v129[246]) + 36), 0);
+        }
+        else
+        {
+          *(_DWORD *)(LODWORD(v129[247]) + 3216) -= 100;
+          PhysicsCarInput__1BA170((_DWORD *)(LODWORD(v129[247]) + 1444), 0);
+        }
+      }
+>>>
+
+=== 1C9070
+<<<
+  v22[446] = dword_6CDCE0;
+  v22[445] = this;
+  MEM_SetNS__29B200((int)"Building FastCar objects: car. Loading: config structure, mesh and quadtree");
+  v22[444] = 2;
+  v22[443] = 1;
+  PhysicsManager__1B4F80(&v22[431]);
+  PhysicsManager__1B5040(&v22[431], v5, nullptr);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"LC", (int)&byte_624E14);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"GC", (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)"bLOOP", (int)&unk_624A8C);
+  if ( byte_6F70E9 != 0 )
+    VsConfigFileRead__1B56A0(&v22[431], (int)"bPROFESSIONAL_RACE", (int)"1");
+  else
+    VsConfigFileRead__1B56A0(&v22[431], (int)"bPROFESSIONAL_RACE", (int)&unk_624A8C);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"bEUGENE_LAPTEV", (int)&unk_624A8C);
+  VsConfigFileRead__1B56A0(&v22[431], (int)&off_6483EC, (int)&unk_624A8C);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"EUGENE_LAPTEV", (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)"EL", (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)"bMASTER", (int)&unk_624A8C);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"MASTER", (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)&off_6483CC, (int)&unk_624A8C);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"PC", (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)&byte_624E14);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)&byte_624E14);
+  for ( v22[429] = 0; v22[429] < 0x31u; ++v22[429] )
+    VsConfigFileRead__1B56A0(&v22[431], (int)(&off_688AA0)[v22[429]], (int)"//");
+  VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)"//");
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 4076));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"SPAN_FRONT_BACK_FROM_XML", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 4080));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"SPAN_FRONT_FROM_XML", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 4084));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"SPAN_BACK_FROM_XML", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 4088));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"DISTANCE_TO_FRONT_WHEELS_FROM_XML", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 4092));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"DISTANCE_TO_REAR_WHEELS_FROM_XML", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 112));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"m_fAcceleration_PM", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 116));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"m_fTop_speed_PM", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 120));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"m_Brake_PM", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 124));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"m_fTire_Softness_PM", (int)&v22[396]);
+  sub_3DEA80(&v22[396], "%g", *(float *)(v22[445] + 128));
+  VsConfigFileRead__1B56A0(&v22[431], (int)"m_fBody_roll_PM", (int)&v22[396]);
+  MEM_SetNS__29B800(v22[444], "\n Performance modifiers:\n");
+  MEM_SetNS__29B800(v22[444], "  acceleration: %g\n");
+  MEM_SetNS__29B800(v22[444], "  top speed: %g\n");
+  MEM_SetNS__29B800(v22[444], "  brake: %g\n");
+  MEM_SetNS__29B800(v22[444], "  tire softness: %g\n");
+  v6 = *(float *)(v22[445] + 128);
+  MEM_SetNS__29B800(v22[444], "  body roll: %g");
+  *(_BYTE *)(v22[445] + 4073) = 0;
+  v22[394] = 0;
+  for ( v22[429] = 0; v22[429] < 0x31u; ++v22[429] )
+  {
+    v7 = VsStringAnsi::Hash((&off_688AA0)[v22[429]]);
+    if ( *(_DWORD *)(v22[445] + 4128) == v7 )
+    {
+      VsConfigFileRead__1B56A0(&v22[431], (int)(&off_688AA0)[v22[429]], (int)&byte_624E14);
+      MEM_SetNS__29B800(v22[444], "\n Trying to load the config file for the car: %s\n");
+      VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+      v22[394] = 1;
+      *(_DWORD *)(v22[445] + 32) = (&off_688AA0)[v22[429]];
+    }
+  }
+  v8 = VsStringAnsi::Hash("LA_FIRE01");
+  v9 = (void *)CCRC::CCRCChecked((int)&v22[18], "LA_FIRE01", v8);
+  CRC = CCRC::GetCRC(v9);
+  HIBYTE(v22[20]) = *(_DWORD *)(v22[445] + 4128) == CRC;
+  CCRC::~CCRC(&v22[18]);
+  if ( HIBYTE(v22[20]) != 0 )
+  {
+    VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)&byte_624E14);
+    VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)"//");
+    VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+    MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for bus: LA_FIRE01\n");
+    *(_BYTE *)(v22[445] + 4073) = 1;
+  }
+  else
+  {
+    v11 = (void *)CCRC::CCRCChecked((int)&v22[15], "LON_BUS01", 527812301);
+    v12 = CCRC::GetCRC(v11);
+    HIBYTE(v22[17]) = *(_DWORD *)(v22[445] + 4128) == v12;
+    CCRC::~CCRC(&v22[15]);
+    if ( HIBYTE(v22[17]) != 0 )
+    {
+      VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)&byte_624E14);
+      VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)"//");
+      VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+      MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for bus: LON_BUS01\n");
+      *(_BYTE *)(v22[445] + 4073) = 1;
+    }
+    else
+    {
+      v13 = (void *)CCRC::CCRCChecked((int)&v22[12], "LON_FIRE01", 2030571515);
+      v14 = CCRC::GetCRC(v13);
+      HIBYTE(v22[14]) = *(_DWORD *)(v22[445] + 4128) == v14;
+      CCRC::~CCRC(&v22[12]);
+      if ( HIBYTE(v22[14]) != 0 )
+      {
+        VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)&byte_624E14);
+        VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)"//");
+        VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+        MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for bus: LON_FIRE01\n");
+        *(_BYTE *)(v22[445] + 4073) = 1;
+      }
+      else
+      {
+        v15 = (void *)CCRC::CCRCChecked((int)&v22[9], "SCHOOL_BUS", 1272200373);
+        v16 = CCRC::GetCRC(v15);
+        HIBYTE(v22[11]) = *(_DWORD *)(v22[445] + 4128) == v16;
+        CCRC::~CCRC(&v22[9]);
+        if ( HIBYTE(v22[11]) != 0 )
+        {
+          VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)&byte_624E14);
+          VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)"//");
+          VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+          MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for bus: SCHOOL_BUS\n");
+          *(_BYTE *)(v22[445] + 4073) = 1;
+        }
+        else
+        {
+          v17 = VsStringAnsi::Hash("LON_TRUCK01");
+          if ( *(_DWORD *)(v22[445] + 4128) == v17 )
+          {
+            VsConfigFileRead__1B56A0(&v22[431], (int)&off_64A9A4, (int)&byte_624E14);
+            VsConfigFileRead__1B56A0(&v22[431], (int)"NOT_BUS", (int)"//");
+            VsConfigFileRead__1B56A0(&v22[431], (int)"DEFAULT", (int)"//");
+            MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for bus: LON_TRUCK01\n");
+            *(_BYTE *)(v22[445] + 4073) = 1;
+          }
+          else if ( v22[394] == 0 )
+          {
+            MEM_SetNS__29B800(v22[444], "\n Loading LOCAL config for car: DEFAULT, NOT_BUS\n");
+          }
+        }
+      }
+    }
+  }
+  if ( *(_BYTE *)(v22[445] + 4072) != 0 )
+    sub_3DEA80(&v22[396], "%d", 1);
+  else
+    sub_3DEA80(&v22[396], "%d", 0);
+  VsConfigFileRead__1B56A0(&v22[431], (int)"bPLAYER", (int)&v22[396]);
+  MEM_SetNS__29B200((int)"Loading Main.cfg and the files in it as LOCAL config");
+  v22[393] = "Vehicles\\cfgs\\";
+  sub_3DE3D0(&v22[360]);
+  sub_3DE3D0(&v22[350]);
+  if ( a4 > 0 )
+  {
+    v22[348] = sub_3DEE50((char *)&v22[350], ".cfg");
+    HIBYTE(v22[347]) = 0;
+    if ( v22[348] == 0 )
+    {
+      v22[348] = sub_3DEE50((char *)&v22[350], ".CFG");
+      HIBYTE(v22[347]) = 1;
+    }
+    if ( v22[348] != 0 )
+    {
+      *(_BYTE *)v22[348] = 0;
+      sub_3DEA80(v22[348], "%d", a4);
+      if ( HIBYTE(v22[347]) != 0 )
+        sub_3DE3E0(&v22[350], ".CFG");
+      else
+        sub_3DE3E0(&v22[350], ".cfg");
+    }
+  }
+  sub_3DE3E0(&v22[360], &v22[350]);
+  VsStringAnsi__2B2DD0(&v22[326], 0);
+  if ( VsTextFile::Load((const char *)&v22[326], (char *)&v22[360]) != 0 )
+  {
+    while ( VsConfigFileRead__1B6400(&v22[68], &v22[326], &v22[431]) )
+    {
+      sub_3DE3D0(&v22[360]);
+      for ( v22[66] = &v22[68]; *(_BYTE *)v22[66] == 32 || *(_BYTE *)v22[66] == 9; ++v22[66] )
+        ;
+      sub_3DE3E0(&v22[360], v22[66]);
+      if ( (unsigned int)CConfig__19A220(
+                           *(_DWORD *)(v22[445] + 3552),
+                           (int)&v22[360],
+                           (const char *)&v22[360],
+                           &v22[431]) != 0 )
+      {
+        MEM_SetNS__29B800(v22[444], " %s loaded ok.\n");
+      }
+      else
+      {
+        MEM_SetNS__29B800(1, " !!!Could not load %s!!!\n");
+        if ( off_6C18D8 != nullptr )
+        {
+          off_6C18D8("0&&\"could not load LOCAL config file\"", ".\\src\\Physics\\Vehicle\\VehicleEntity.cpp", 5449);
+          InputDevice__3DDC30(1);
+          v22[65] = v18;
+          if ( v18 == 3 )
+            __debugbreak();
+          HIWORD(v22[3]) = 257;
+        }
+        else
+        {
+          __debugbreak();
+          BYTE2(v22[3]) = 1;
+        }
+        v22[443] = 0;
+      }
+    }
+    VsStringAnsi__2B2FB0(&v22[326]);
+  }
+  else
+  {
+    MEM_SetNS__29B800(1, " !!!Could not load %w!!!\n");
+    v22[443] = 0;
+  }
+  MEM_SetNS__29B280();
+---
+  v22[445] = this;
+  v22[444] = 2;
+  v22[443] = 1;
+>>>
+
+=== 1CABF0
+<<<
+  v30[18] = VsAIRaceVehicle__23F40(byte_709EC8, *(_DWORD *)(v30[19] + 5072));
+  if ( *(_DWORD *)(v30[18] + 1092) != 0
+    && GameDataLoading__A3C10(*(_DWORD *)(v30[18] + 1092))
+    && GameDataLoading__A3CB0(*(_DWORD *)(v30[18] + 1092), (int)"f_l_wheel", 1) != 0
+    && GameDataLoading__A3CB0(*(_DWORD *)(v30[18] + 1092), (int)"r_l_wheel", 1) != 0 )
+  {
+    v7 = (char *)GameDataLoading__A3CB0(*(_DWORD *)(v30[18] + 1092), (int)"f_l_wheel", 1);
+    v8 = VsRender__5C820(v7, 3);
+    VsVector4::VsVector4_Copy(&v30[13], v8);
+    *(float *)&z = -VsVector4::Z(&v30[13]);
+    VsVector4::SetZ((char *)&v30[13], z);
+    v9 = (char *)GameDataLoading__A3CB0(*(_DWORD *)(v30[18] + 1092), (int)"r_l_wheel", 1);
+    v10 = VsRender__5C820(v9, 3);
+    VsVector4::VsVector4_Copy(&v30[7], v10);
+    *(float *)&za = -VsVector4::Z(&v30[7]);
+    VsVector4::SetZ((char *)&v30[7], za);
+    *(float *)&v30[3] = VsVector4::Z(&v30[13]);
+    v11 = VsVector4::Z(&v30[7]);
+    *(float *)(v30[19] + 4076) = *(float *)&v30[3] - v11;
+    v12 = VsVector4::X(&v30[13]);
+    *(float *)(v30[19] + 4080) = v12 + v12;
+    v13 = VsVector4::X(&v30[7]);
+    *(float *)(v30[19] + 4084) = v13 + v13;
+    v14 = VsVector4::Z(&v30[13]);
+    *(float *)(v30[19] + 4088) = v14;
+    v15 = VsVector4::Z(&v30[7]);
+    *(float *)(v30[19] + 4092) = -v15;
+  }
+  else if ( a6 != nullptr && *a6 != nullptr && **a6 != nullptr && (**a6)[14] != 0 )
+  {
+    MEM_SetNS__29B800(2, "WARNING: Vehicle with no wheel locators.  Using ill-chosen defaults\n");
+    *(_DWORD *)(v30[19] + 4076) = 1065353216;
+    *(_DWORD *)(v30[19] + 4080) = 0x40000000;
+    *(_DWORD *)(v30[19] + 4084) = 0x40000000;
+    *(_DWORD *)(v30[19] + 4088) = 1056964608;
+    *(_DWORD *)(v30[19] + 4092) = 1056964608;
+  }
+  else if ( a6 != nullptr && a6[1] != nullptr )
+  {
+    *(float *)(v30[19] + 4076) = *((float *)a6[1] + 13) * 2.0;
+    *(float *)(v30[19] + 4080) = *((float *)a6[1] + 15) * 2.0;
+    *(float *)(v30[19] + 4084) = *((float *)a6[1] + 15) * 2.0;
+    *(_DWORD *)(v30[19] + 4096) = a6[1][17];
+    *(float *)(v30[19] + 4088) = *(float *)(v30[19] + 4076) * 0.5;
+    *(float *)(v30[19] + 4092) = *(float *)(v30[19] + 4076) * 0.5;
+  }
+  else
+  {
+    MEM_SetNS__29B800(
+      1,
+      "Wheel spans is not found either in pConfig or pTraffic. Loading default (possibly stupid) values\n");
+    *(_DWORD *)(v30[19] + 4076) = 1076145160;
+    *(_DWORD *)(v30[19] + 4080) = 1068708659;
+    *(_DWORD *)(v30[19] + 4084) = 1068708659;
+    *(float *)(v30[19] + 4088) = *(float *)(v30[19] + 4076) * 0.5;
+    *(float *)(v30[19] + 4092) = *(float *)(v30[19] + 4076) * 0.5;
+  }
+  if ( a6 != nullptr && a6[1] != nullptr )
+  {
+    a7 = (int)*a6[1];
+  }
+  else if ( a6 != nullptr && *a6 != nullptr )
+  {
+    a7 = ***a6;
+    AccelerationModifier = SVehicleSetup::GetAccelerationModifier(*a6);
+    *(float *)(v30[19] + 112) = AccelerationModifier;
+    TopSpeedModifier = SVehicleSetup::GetTopSpeedModifier(*a6);
+    *(float *)(v30[19] + 116) = TopSpeedModifier;
+    NosModifier = SVehicleSetup::GetNosModifier(*a6);
+    *(float *)(v30[19] + 100) = NosModifier;
+    TireSoftnessModifier = SVehicleSetup::GetTireSoftnessModifier(*a6);
+    *(float *)(v30[19] + 124) = TireSoftnessModifier;
+    BodyRollModifier = SVehicleSetup::GetBodyRollModifier(*a6);
+    *(float *)(v30[19] + 128) = BodyRollModifier;
+    BrakeModifier = SVehicleSetup::GetBrakeModifier(*a6);
+    *(float *)(v30[19] + 120) = BrakeModifier;
+  }
+  else if ( a7 == 0 )
+  {
+    if ( off_6C18D8 != nullptr )
+    {
+      off_6C18D8("0", ".\\src\\Physics\\Vehicle\\VehicleEntity.cpp", 5773);
+      InputDevice__3DDC30(1);
+      v30[5] = v22;
+      if ( v22 == 3 )
+        __debugbreak();
+      HIWORD(v30[2]) = 257;
+    }
+    else
+    {
+      __debugbreak();
+      BYTE2(v30[2]) = 1;
+    }
+  }
+---
+
+>>>
+
+=== 1CABF0
+<<<
+  if ( *(_DWORD *)(v29[19] + 3552) == 0 )
+  {
+    MEM_SetNS__29B200((int)"CFastConfig");
+    v29[4] = operator_new(0x2E8u);
+    if ( v29[4] != 0 )
+      v29[1] = VehicleEntity__1DA910((_DWORD *)v29[4]);
+    else
+      v29[1] = 0;
+    *(_DWORD *)(v29[19] + 3552) = v29[1];
+    MEM_SetNS__29B280();
+  }
+  v23 = VehicleEntity__1C9070((VehicleEntity *)v29[19], v22, (int)"Main.cfg", dword_75B28C);
+  if ( (_DWORD)v23 == 0 )
+    VehicleEntity__1C9070((VehicleEntity *)v29[19], SHIDWORD(v23), (int)"Mainsafe.cfg", 0);
+---
+  VehicleEntity__1C9070((VehicleEntity *)v29[19], v22, (int)"Main.cfg", dword_75B28C);
+>>>
+
+=== 3682B0
+<<<
+  memset(x, 0xCCu, sizeof(x));
+---
+  int goto35; // patch
+  memset(x, 0xCCu, sizeof(x));
+  goto35 = 0;
+>>>
+
+=== 3682B0
+<<<
+          goto LABEL_35;
+---
+          goto35 = 1;
+          break;
+>>>
+
+=== 3682B0
+<<<
+      x[127] = x[40] / (float)SLODWORD(x[39]);
+      x[127] = x[127] * 6.0;
+    }
+    else
+    {
+LABEL_35:
+---
+      if ( goto35 != 0 )
+        x[127] = -1.0;
+      else
+      {
+      x[127] = x[40] / (float)SLODWORD(x[39]);
+      x[127] = x[127] * 6.0;
+      }
+    }
+    else
+    {
+>>>
+
+=== 1CF090
+<<<
+  v3 = sub_3DE030(v0);
+---
+  v3 = sub_3DE030();
+>>>
+
+=== 19D3E0
+<<<
+    if ( (a8 & 4) == 0 )
+    {
+LABEL_43:
+      HIDWORD(v9) = a3;
+      *a3 = v21[34];
+      LOBYTE(v9) = v21[34] < 1.0;
+      goto LABEL_44;
+    }
+---
+    if ( (a8 & 4) == 0 )
+    {
+      *a3 = v21[34];
+      LOBYTE(v9) = v21[34] < 1.0;
+      goto LABEL_44;
+    }
+>>>
+
+=== 19D3E0
+<<<
+      if ( LODWORD(v21[21]) >= (unsigned int)v9 )
+        goto LABEL_43;
+---
+      if ( LODWORD(v21[21]) >= (unsigned int)v9 )
+        break;
+>>>
+
+=== 19D3E0
+<<<
+          *(float *)(LODWORD(v21[6]) + 56) = v21[4];
+        }
+      }
+    }
+  }
+  LOBYTE(v9) = 0;
+LABEL_44:
+---
+          *(float *)(LODWORD(v21[6]) + 56) = v21[4];
+        }
+      }
+    }
+    *a3 = v21[34];
+    LOBYTE(v9) = v21[34] < 1.0;
+    goto LABEL_44;
+  }
+  LOBYTE(v9) = 0;
+LABEL_44:
+>>>
+
+=== 1B1300
+<<<
+  v5 = *(float *)&GC;
+---
+  v5 = 0.0;
+>>>
+
+=== 386450
+<<<
+    if ( *(_DWORD *)(LODWORD(v21[102]) + 84) != 0 )
+    {
+      AUDIO_Resample__3997E0(a6);
+    }
+    else if ( *(_DWORD *)(LODWORD(v21[101]) + 92) == 0 )
+    {
+      AUDIO_Resample__399CB0(a6);
+---
+    if ( *(_DWORD *)(LODWORD(v21[102]) + 84) != 0 )
+    {
+      AUDIO_Resample__3997E0((void *)LODWORD(v21[101]), (float *)a6);
+    }
+    else if ( *(_DWORD *)(LODWORD(v21[101]) + 92) == 0 )
+    {
+      AUDIO_Resample__399CB0((void *)LODWORD(v21[101]), a6);
+>>>
+
+=== 386450
+<<<
+    if ( *(_DWORD *)(LODWORD(v21[71]) + 84) != 0 )
+    {
+      AUDIO_Resample__3997E0(a6);
+---
+    if ( *(_DWORD *)(LODWORD(v21[71]) + 84) != 0 )
+    {
+      AUDIO_Resample__3997E0((void *)LODWORD(v21[70]), (float *)a6);
+>>>
+
+=== 1A3A30
+<<<
+          a2 = AUDIO_Resample__389630(a2, a4, SLODWORD(v167[834]), 0, 0, 0, 0, (int)&v167[320]);
+---
+          a2 = AUDIO_Resample__389630(a4, SLODWORD(v167[834]), 0, 0, 0, 0, (int)&v167[320]);
+>>>
+
+=== 1B44C0
+<<<
+  float *j; // [esp+Ch] [ebp-Ch]
+---
+  int j; // [esp+Ch] [ebp-Ch]
+>>>
+
+=== 1B44C0
+<<<
+    for ( j = nullptr; (int)j < 3; j = (float *)((char *)j + 1) )
+    {
+      result = j;
+      *(_DWORD *)(this + 12 * i + 16 + 4 * (_DWORD)j) = 0;
+      for ( k = 0; k < 3; ++k )
+      {
+        result = j;
+        *(float *)(this + 12 * i + 16 + 4 * (_DWORD)j) = (float)(*(float *)(this + 16 * i + 68 + 4 * k)
+                                                               * *(float *)(*(_DWORD *)(this + 64)
+                                                                          + 12 * k
+                                                                          + 16
+                                                                          + 4 * (_DWORD)j))
+                                                       + *(float *)(this + 12 * i + 16 + 4 * (_DWORD)j);
+      }
+    }
+---
+    for ( j = 0; j < 3; ++j )
+    {
+      *(_DWORD *)(this + 12 * i + 16 + 4 * j) = 0;
+      for ( k = 0; k < 3; ++k )
+      {
+        *(float *)(this + 12 * i + 16 + 4 * j) = (float)(*(float *)(this + 16 * i + 68 + 4 * k)
+                                                               * *(float *)(*(_DWORD *)(this + 64)
+                                                                          + 12 * k
+                                                                          + 16
+                                                                          + 4 * j))
+                                                       + *(float *)(this + 12 * i + 16 + 4 * j);
+      }
+    }
+>>>
+
+=== 1B32E0
+<<<
+  v2 = sub_3E2900(v13[1]);
+  memset(v13, 0xCCu, sizeof(v13));
+  v13[10150] = v3;
+  v13[10148] = GameManager__C0470(*v3);
+---
+  memset(v13, 0xCCu, sizeof(v13));
+  v13[10150] = this;
+  v13[10148] = GameManager__C0470(*this);
+>>>
+
+=== 1C5800
+<<<
+    v19 = (_DWORD *)VsRaceManager__3D640(RaceManager, v10);
+---
+    v19 = (_DWORD *)VsRaceManager__ScoreRecord(RaceManager, v10);
+>>>
+
+=== 1A7060
+<<<
+      v49[505] = B::PhysicsManager(dword_705F48);
+---
+      v49[505] = BarrierRender__GetCollisionQuadTree(dword_705F48);
+>>>
+
+=== 1A7060
+<<<
+        v49[503] = B::PhysicsManager(dword_705F48);
+---
+        v49[503] = BarrierRender__GetCollisionMesh(dword_705F48);
+>>>
+=== 361FF0
+<<<
+    AUDIO_Resample__3623A0(&a2);
+---
+    v5[0] = a2;
+    AUDIO_Resample__3623A0(v5);
+    a2 = v5[0];
+>>>
+=== 362A30
+<<<
+        for ( v6[79] = 0.0;
+              SLODWORD(v6[79]) < *(_DWORD *)(LODWORD(v6[81]) + 4 * LODWORD(v6[80]) + 1088);
+              v6[64] = v6[64] + *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79])++ + 52) )
+        {
+          AUDIO_Resample__3605C0(
+            &v6[74],
+            (float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 56),
+            *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 52));
+          AUDIO_Resample__3636E0(
+            &v6[66],
+            (float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 28),
+            *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 52));
+        }
+---
+        for ( v6[79] = 0.0;
+              SLODWORD(v6[79]) < *(_DWORD *)(LODWORD(v6[81]) + 4 * LODWORD(v6[80]) + 1088);
+              ++LODWORD(v6[79]) )
+        {
+          AUDIO_Resample__3605C0(
+            &v6[74],
+            (float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 56),
+            *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 52));
+          AUDIO_Resample__3636E0(
+            &v6[66],
+            (float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 28),
+            *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 52));
+          v6[64] = v6[64] + *(float *)(LODWORD(v6[81]) + 136 * LODWORD(v6[80]) + 544 + 136 * LODWORD(v6[79]) + 52);
+        }
+>>>
+=== 372B70
+<<<
+          v36[LODWORD(v36[1752]) + 1594 + LODWORD(v36[LODWORD(v36[1752]) + 1588])++] = v36[1751];
+---
+          v36[LODWORD(v36[1752]) + 1594 + LODWORD(v36[LODWORD(v36[1752]) + 1588])] = v36[1751];
+          LODWORD(v36[LODWORD(v36[1752]) + 1588]) = LODWORD(v36[LODWORD(v36[1752]) + 1588]) + 1;
+>>>
+
+=== 372B70
+<<<
+                if ( v35[1631] <= (float)(1.0 / *(float *)(LODWORD(v35[1769]) + 4 * LODWORD(v35[1752]) + 1284)) )
+---
+                if ( !(v35[1631] > (float)(1.0 / *(float *)(LODWORD(v35[1769]) + 4 * LODWORD(v35[1752]) + 1284))) )
+>>>
+
+=== 372B70
+<<<
+              if ( v35[1637] <= *(float *)(LODWORD(v35[1769]) + 4 * LODWORD(v35[1752]) + 1284) )
+---
+              if ( !(v35[1637] > *(float *)(LODWORD(v35[1769]) + 4 * LODWORD(v35[1752]) + 1284)) )
+>>>
+
+=== 3789C0
+<<<
+  int k; // [esp+0h] [ebp-8h]
+
+---
+  int k; // [esp+0h] [ebp-8h]
+  int v19[16]; // [esp+0h] [ebp-48h] BYREF
+
+  *(float *)&v19[0] = a2;
+  v19[1] = a3;
+  v19[2] = a4;
+  v19[3] = a5;
+  v19[4] = a6;
+  v19[5] = a7;
+  v19[6] = a8;
+  v19[7] = a9;
+  v19[8] = a10;
+  v19[9] = a11;
+  v19[10] = a12;
+  v19[11] = a13;
+  v19[12] = a14;
+  v19[13] = a15;
+  v19[14] = a16;
+  v19[15] = a17;
+>>>
+=== 3789C0
+<<<
+AUDIO_Resample__38C3D0(&a2,
+---
+AUDIO_Resample__38C3D0((float *)v19,
+>>>
+=== 3789C0
+<<<
+AUDIO_Resample__37EF70(&a2,
+---
+AUDIO_Resample__37EF70((float *)v19,
+>>>
+=== 3789C0
+<<<
+AUDIO_Resample__3A4A00(&a2,
+---
+AUDIO_Resample__3A4A00((float *)v19,
+>>>
+=== 1B32E0
+<<<
+        PhysicsManager__1A89F0(v7, &v12[10148], (int)&v12[2], 26, dword_68899C);
+---
+        PhysicsManager__1A89F0((_DWORD *)v12[10150], &v12[10148], (int)&v12[2], 26, dword_68899C);
+>>>
+=== 1AAED0
+<<<
+                      PhysicsObjectManager__1DEBB0(v38[199], &v38[100]);
+---
+                      PhysicsObjectManager__1DEBB0(*(_DWORD **)(VsAIRaceVehicle__24F90() + 24), (_DWORD *)v38[199], (float *)&v38[100]);
+>>>
+=== 1A0530
+<<<
+sub_3DE030(v0)
+---
+sub_3DE030()
+>>>
+=== 1DFBB0
+<<<
+sub_3DE030(v0)
+---
+sub_3DE030()
+>>>
+=== 3847C0
+<<<
+        for ( p[4] = p[6] + 1;
+              p[4] <= *(unsigned __int16 *)p[11];
+              *(_WORD *)(*(unsigned __int16 *)(p[11] + 4) + *(_DWORD *)(*(_DWORD *)(p[11] + 20) + 16 * p[4]++)) = p[4] )
+        {
+          ;
+        }
+---
+        for ( p[4] = p[6] + 1; p[4] <= *(unsigned __int16 *)p[11]; ++p[4] )
+          *(_WORD *)(*(unsigned __int16 *)(p[11] + 4) + *(_DWORD *)(*(_DWORD *)(p[11] + 20) + 16 * p[4])) = p[4];
+>>>
+=== 384C70
+<<<
+              for ( v15[3] = v15[45];
+                    v15[3] < v15[19];
+                    *(_WORD *)(*(unsigned __int16 *)(v15[46] + 4)
+                             + *(_DWORD *)(*(_DWORD *)(v15[46] + 20) + 16 * v15[3]++)) = v15[3] )
+              {
+                ;
+              }
+---
+              for ( v15[3] = v15[45]; v15[3] < v15[19]; ++v15[3] )
+                *(_WORD *)(*(unsigned __int16 *)(v15[46] + 4) + *(_DWORD *)(*(_DWORD *)(v15[46] + 20) + 16 * v15[3])) = v15[3];
+>>>
+=== 384C70
+<<<
+            for ( v15[10] = v15[19];
+                  v15[10] <= v15[45];
+                  *(_WORD *)(*(unsigned __int16 *)(v15[46] + 4) + *(_DWORD *)(*(_DWORD *)(v15[46] + 20) + 16 * v15[10]++)) = v15[10] )
+            {
+              ;
+            }
+---
+            for ( v15[10] = v15[19]; v15[10] <= v15[45]; ++v15[10] )
+              *(_WORD *)(*(unsigned __int16 *)(v15[46] + 4) + *(_DWORD *)(*(_DWORD *)(v15[46] + 20) + 16 * v15[10])) = v15[10];
+>>>
+=== 1AC680
+<<<
+                   v109[363],
+                   1036831949,
+                   0.08f) != 0 )
+---
+                   v109[363],
+                   0.1f,
+                   0.08f) != 0 )
+>>>
+=== 1B32E0
+<<<
+      PhysicsManager__1ADF00((_DWORD *)v13[10150], SLODWORD(a2));
+---
+      PhysicsManager__1ADF00((_DWORD *)v13[10150], a2);
+>>>
+=== 398230
+<<<
+  operator_delete((void *)dword_7B5710);
+---
+  operator_delete((void *)(dword_7B5710 + 0));
+>>>
+
+=== 19D3E0
+<<<
+      LODWORD(v21[36]) = B::PhysicsManager(dword_705F48);
+---
+      LODWORD(v21[36]) = BarrierRender__GetCollisionQuadTree(dword_705F48);
+>>>
+
+=== 19D3E0
+<<<
+        v10 = B::PhysicsManager(dword_705F48);
+---
+        v10 = BarrierRender__GetCollisionMesh(dword_705F48);
+>>>
+
+=== 1BB320
+<<<
+                  LODWORD(v237[991]) = B::PhysicsManager(dword_705F48);
+---
+                  LODWORD(v237[991]) = BarrierRender__GetCollisionQuadTree(dword_705F48);
+>>>
+
+=== 1BB320
+<<<
+                      LODWORD(v237[898]) = B::PhysicsManager(dword_705F48);
+---
+                      LODWORD(v237[898]) = BarrierRender__GetCollisionMesh(dword_705F48);
+>>>
+
+=== 19D3E0
+<<<
+        v21[7] = *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 12)
+               + *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 188);
+---
+        v21[7] = *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 12);
+        if ( *(int *)(*(_DWORD *)(LODWORD(v21[19]) + 3556) + 4) >= 2 )
+          v21[7] = *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 12)
+                 + *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 188);
+>>>
+
+=== 19D3E0
+<<<
+          v21[5] = (float)(*(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 252) - *(float *)(LODWORD(v21[6]) + 56))
+                 + *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 188);
+---
+          v21[5] = 0.0;
+          if ( *(int *)(*(_DWORD *)(LODWORD(v21[19]) + 3556) + 4) >= 2 )
+            v21[5] = (float)(*(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 252) - *(float *)(LODWORD(v21[6]) + 56))
+                   + *(float *)(**(_DWORD **)(LODWORD(v21[19]) + 3556) + 188);
+>>>
+
+=== 19FD80
+<<<
+  _DWORD *v18; // eax
+  double v19; // st7
+  double v20; // st7
+  _DWORD *v21; // eax
+  unsigned int v22; // edx
+  float v24; // [esp-8h] [ebp-CCh]
+  float v25; // [esp-4h] [ebp-C8h]
+  unsigned __int64 v26; // [esp-4h] [ebp-C8h]
+  float v27; // [esp+0h] [ebp-C4h]
+  _DWORD *v28[46]; // [esp+Ch] [ebp-B8h] BYREF
+---
+  int v18; // eax
+  double v19; // st7
+  double v20; // st7
+  int v21; // eax
+  unsigned int v22; // edx
+  float v24; // [esp-8h] [ebp-CCh]
+  float v25; // [esp-4h] [ebp-C8h]
+  unsigned __int64 v26; // [esp-4h] [ebp-C8h]
+  float v27; // [esp+0h] [ebp-C4h]
+  int v28[46]; // [esp+Ch] [ebp-B8h] BYREF
+>>>
+
+=== 19FD80
+<<<
+  v28[45] = a1;
+  v28[44] = nullptr;
+---
+  v28[45] = (int)a1;
+  v28[44] = 0;
+>>>
+
+=== 19FD80
+<<<
+    v28[40] = (_DWORD *)AUDIO_Resample__385920((_WORD *)*(_DWORD *)(v11 + 2836), v12, &v28[42], v24, v25, a4);
+    if ( v28[42] == nullptr )
+---
+    v28[40] = AUDIO_Resample__385920((_WORD *)*(_DWORD *)(v11 + 2836), v12, &v28[42], v24, v25, a4);
+    if ( v28[42] == 0 )
+>>>
+
+=== 19FD80
+<<<
+    for ( v28[39] = nullptr; (int)v28[39] < (int)v28[40]; ++v28[39] )
+    {
+      v28[38] = (_DWORD *)v28[42][(int)v28[39]];
+      if ( v28[38] != nullptr && v28[38][25] != 0 )
+      {
+        PhysicsManager__19D920((float *)&v28[34], *(float **)(v28[38][25] + 32), (float *)a3);
+---
+    for ( v28[39] = 0; v28[39] < v28[40]; ++v28[39] )
+    {
+      v28[38] = *(_DWORD *)(v28[42] + 4 * v28[39]);
+      if ( v28[38] != 0 && *(_DWORD *)(v28[38] + 100) != 0 )
+      {
+        PhysicsManager__19D920((float *)&v28[34], *(float **)(*(_DWORD *)(v28[38] + 100) + 32), (float *)a3);
+>>>
+
+=== 19FD80
+<<<
+          PhysicsObjectParticleTracker__1E4710((int)v28[38]);
+          PhysicsManager__1A0390(
+            (float *)(*(_DWORD *)(v28[38][25] + 36) + 32),
+---
+          PhysicsObjectParticleTracker__1E4710(v28[38]);
+          PhysicsManager__1A0390(
+            (float *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 32),
+>>>
+
+=== 19FD80
+<<<
+            PhysicsManager__1A0390((float *)(*(_DWORD *)(v28[38][25] + 36) + 48), (float *)&v28[28], v27);
+          }
+          else
+          {
+            v13 = *(_DWORD *)(v28[38][25] + 36);
+            PhysicsManager__1A0530();
+            v14 = a2 * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v13 + 48);
+            *(float *)(*(_DWORD *)(v28[38][25] + 36) + 48) = v14;
+            v15 = *(_DWORD *)(v28[38][25] + 36);
+            PhysicsManager__1A0530();
+            v16 = v14 * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v15 + 52);
+            *(float *)(*(_DWORD *)(v28[38][25] + 36) + 52) = v16;
+            v17 = *(_DWORD *)(v28[38][25] + 36);
+            PhysicsManager__1A0530();
+            a2 = v16 * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v17 + 56);
+            *(float *)(*(_DWORD *)(v28[38][25] + 36) + 56) = a2;
+          }
+          PhysicsManager__1B4210(&v28[11]);
+          v28[12] = v28[38];
+          MessageManager__CA2C0(dword_6FAA34, 2u, (int)&v28[11]);
+          if ( PhysicsManager__1B41F0(*((_DWORD **)v28[38] + 25)) )
+          {
+            *(_DWORD *)(*(_DWORD *)(v28[38][25] + 36) + 536) = 1;
+            ++v28[44];
+          }
+---
+            PhysicsManager__1A0390((float *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 48), (float *)&v28[28], v27);
+          }
+          else
+          {
+            v13 = *(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36);
+            v14 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v13 + 48);
+            *(float *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 48) = v14;
+            v15 = *(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36);
+            v16 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v15 + 52);
+            *(float *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 52) = v16;
+            v17 = *(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36);
+            a2 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[26]) / *(float *)&a4 * a6 + *(float *)(v17 + 56);
+            *(float *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 56) = a2;
+          }
+          PhysicsManager__1B4210(&v28[11]);
+          v28[12] = v28[38];
+          MessageManager__CA2C0(dword_6FAA34, 2u, (int)&v28[11]);
+          if ( PhysicsManager__1B41F0(*(_DWORD **)(v28[38] + 100)) )
+          {
+            *(_DWORD *)(*(_DWORD *)(*(_DWORD *)(v28[38] + 100) + 36) + 536) = 1;
+            v28[44] = v28[44] + 1;
+          }
+>>>
+
+=== 19FD80
+<<<
+  for ( v28[9] = nullptr; ; ++v28[9] )
+  {
+    v18 = (_DWORD *)GameManager__C0470(*v28[45]);
+    if ( v28[9] >= v18 )
+      break;
+    if ( *(_BYTE *)(*(_DWORD *)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[9]) + 28) != 0
+      && v28[9] != a11 )
+    {
+      v28[8] = *(_DWORD **)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[9]);
+      PhysicsManager__19D920((float *)&v28[4], (float *)v28[8] + 76, (float *)a3);
+---
+  for ( v28[9] = 0; ; ++v28[9] )
+  {
+    v18 = GameManager__C0470(*(_DWORD *)v28[45]);
+    if ( v28[9] >= v18 )
+      break;
+    if ( *(_BYTE *)(*(_DWORD *)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[9]) + 28) != 0
+      && v28[9] != (int)a11 )
+    {
+      v28[8] = *(_DWORD *)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[9]);
+      PhysicsManager__19D920((float *)&v28[4], (float *)(v28[8] + 304), (float *)a3);
+>>>
+
+=== 19FD80
+<<<
+        PhysicsManager__1A0390(
+          (float *)v28[8] + 68,
+---
+        PhysicsManager__1A0390(
+          (float *)(v28[8] + 272),
+>>>
+
+=== 19FD80
+<<<
+        PhysicsManager__1A0530();
+        v19 = a2 * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *((float *)v28[8] + 72);
+        *((float *)v28[8] + 72) = v19;
+        PhysicsManager__1A0530();
+        v20 = v19 * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *((float *)v28[8] + 73);
+        *((float *)v28[8] + 73) = v20;
+        PhysicsManager__1A0530();
+        a2 = v20 * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *((float *)v28[8] + 74);
+        *((float *)v28[8] + 74) = a2;
+        ++v28[44];
+---
+        v19 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *(float *)(v28[8] + 288);
+        *(float *)(v28[8] + 288) = v19;
+        v20 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *(float *)(v28[8] + 292);
+        *(float *)(v28[8] + 292) = v20;
+        a2 = PhysicsManager__1A0530() * (*(float *)&a4 - *(float *)&v28[2]) / *(float *)&a4 * a8 + *(float *)(v28[8] + 296);
+        *(float *)(v28[8] + 296) = a2;
+        v28[44] = v28[44] + 1;
+>>>
+
+=== 19FD80
+<<<
+  for ( v28[1] = nullptr; ; ++v28[1] )
+  {
+    v21 = (_DWORD *)GameManager__C0470(*v28[45]);
+    if ( v28[1] >= v21 )
+      break;
+    v28[0] = *(_DWORD **)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[1]);
+    if ( v28[0] != nullptr && v28[0][1271] == 0 )
+      VehicleEntity__1D1170(v28[0]);
+  }
+  v26 = __PAIR64__(v22, (unsigned int)v28[44]);
+---
+  for ( v28[1] = 0; ; ++v28[1] )
+  {
+    v21 = GameManager__C0470(*(_DWORD *)v28[45]);
+    if ( v28[1] >= v21 )
+      break;
+    v28[0] = *(_DWORD *)OSDInGameScreen__FAF10(*(_DWORD **)v28[45], a2, (unsigned int)v28[1]);
+    if ( v28[0] != 0 && *(_DWORD *)(v28[0] + 5084) == 0 )
+      VehicleEntity__1D1170(v28[0]);
+  }
+  v26 = (unsigned int)v28[44];
+>>>

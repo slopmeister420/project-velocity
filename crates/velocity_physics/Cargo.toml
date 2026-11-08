@@ -1,0 +1,17 @@
+[package]
+name = "velocity_physics"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+
+[features]
+default = ["tr"]
+# translated VehicleEntity / FastCar / PhysicsManager code (tools/phys_c2rs4.py, tools/phys_regen.sh)
+tr = []
+

@@ -1,0 +1,20 @@
+[package]
+name = "visos_render"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+# trackview --damage only (runs the physics CarDamage model on the viewer car)
+velocity_physics.workspace = true
+
+[features]
+# perf profiling only: per-system spans to a chrome trace (`--features visos_render/trace_chrome`, details "Performance")
+trace_chrome = ["bevy/trace_chrome"]
+
+[dev-dependencies]
+naga = { version = "29", features = ["wgsl-in"] }

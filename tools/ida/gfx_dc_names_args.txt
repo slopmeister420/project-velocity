@@ -1,0 +1,9 @@
+D:/projects/project poland rewrite/research/gfx/mtv_dc2.c
+FuryInstance__12A4F0
+OvColourXbox
+VisosColour
+FullScreenEffectsManager_PC_XBOX__15C340
+LightStreak131130
+Armco__13F50
+sub_3DDFA8
+VsRandRange

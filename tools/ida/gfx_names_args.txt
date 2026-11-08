@@ -1,0 +1,3 @@
+D:/projects/project poland rewrite/research/gfx/hudlit_names.txt
+SetLight
+LightEnable

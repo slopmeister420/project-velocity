@@ -1,0 +1,14 @@
+[package]
+name = "velocity_game"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+velocity_audio.workspace = true
+velocity_physics.workspace = true
+visos_render.workspace = true

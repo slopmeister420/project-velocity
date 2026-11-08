@@ -1,0 +1,184 @@
+S|AI
+F|Difficulty Scale|00000000|3F800000|3D4CCCCD
+B|PlayerAIControl
+B|TriggerFinishRace
+B|ForceFollowRaceline
+B|RacelineTrackCam
+B|DrawVehicleDebug
+B|DrawDriverDebug
+B|DrawPoliceDebug
+B|DrawMistakeDebug
+B|DrawAvoidanceDebug
+B|DrawResponseCurves
+B|DrawRaceline
+B|DrawEdges
+B|DrawLanes
+B|DrawTrafTrigSplines
+B|DrawTrailBlazerSplines
+B|DrawTriggers
+F|Judgment error (low skill)|00000000|3F800000|3C23D70A
+F|Judgment error (med skill)|00000000|3F800000|3C23D70A
+F|Judgment error (high skill)|00000000|3F800000|3C23D70A
+F|catchup boost (low skill)|3F800000|40A00000|3C23D70A
+F|catchup boost (med skill)|3F800000|40A00000|3C23D70A
+F|catchup boost (high skill)|3F800000|40A00000|3C23D70A
+F|big collision threshold|41700000|428C0000|3F800000
+S|AI.Mistakes
+B|Make Mistakes
+S|AI.Mistakes.Skid out
+F|Skid out time|00000000|40A00000|3DCCCCCD
+F|Min skid out steering|00000000|3F800000|3C23D70A
+F|Skid out handbrake strength|00000000|3F800000|3D4CCCCD
+S|AI.Mistakes.Brake late
+F|Brake late time|00000000|40A00000|3DCCCCCD
+F|Min brake late corner tightness|00000000|00000000|3C23D70A
+F|Brake late brake multiplier|00000000|3F800000|3D4CCCCD
+F|Brake late steering multiplier|00000000|3F800000|3D4CCCCD
+S|AI.Mistakes.Misalign
+F|Misalign time|00000000|40A00000|3DCCCCCD
+F|Max misalign road width|00000000|42480000|3F000000
+F|Misalign amount|00000000|41200000|3DCCCCCD
+S|AI.Nitrous
+B|Use Nitrous
+F|Ahead of player threshold|00000000|437A0000|3F800000
+F|EOR no conservation length|00000000|43FA0000|41200000
+F|Speed check distance|00000000|43FA0000|41200000
+F|Speed check threshold|00000000|42C80000|3F800000
+S|AI.Nitrous.Low Aggression
+F|Start straightness length|41200000|43FA0000|3F800000
+F|Continue straightness length|41200000|43FA0000|3F800000
+F|Overtaken time window|00000000|41200000|3DCCCCCD
+F|Overtaken length factor|3DCCCCCD|3F800000|3C23D70A
+F|Minimum road straightness|00000000|42B40000|3F800000
+F|Max steering|00000000|3F800000|3C23D70A
+S|AI.Nitrous.Med Aggression
+F|Start straightness length|41200000|43FA0000|3F800000
+F|Continue straightness length|41200000|43FA0000|3F800000
+F|Overtaken time window|00000000|41200000|3DCCCCCD
+F|Overtaken length factor|3DCCCCCD|3F800000|3C23D70A
+F|Minimum road straightness|00000000|42B40000|3F800000
+F|Max steering|00000000|3F800000|3C23D70A
+S|AI.Nitrous.High Aggression
+F|Start straightness length|41200000|43FA0000|3F800000
+F|Continue straightness length|41200000|43FA0000|3F800000
+F|Overtaken time window|00000000|41200000|3DCCCCCD
+F|Overtaken length factor|3DCCCCCD|3F800000|3C23D70A
+F|Minimum road straightness|00000000|42B40000|3F800000
+F|Max steering|00000000|3F800000|3C23D70A
+S|AI.Nitrous.Low Skill
+F|Conservation propensity|00000000|40000000|3D4CCCCD
+S|AI.Nitrous.Med Skill
+F|Conservation propensity|00000000|40000000|3D4CCCCD
+S|AI.Nitrous.high Skill
+F|Conservation propensity|00000000|40000000|3D4CCCCD
+S|AI.Slipstream
+B|Use Slipstream
+F|spd diff thresh/quick overtake|00000000|42480000|3F800000
+S|AI.Slipstream.Low skill
+F|Min distance|00000000|41200000|3E800000
+F|Min speed|00000000|42C80000|3F800000
+F|Min speed diff (current)|C1A00000|42C80000|3F800000
+F|Min speed diff (new)|C1A00000|42C80000|3F800000
+F|Max speed difference|00000000|42C80000|3F800000
+F|Semicircle radius|00000000|42C80000|3F800000
+F|Semicircle angle|00000000|42B40000|3F800000
+F|Direction difference|00000000|42B40000|3F800000
+F|Steering smoothness|00000000|3F800000|3C23D70A
+S|AI.Slipstream.Med skill
+F|Min distance|00000000|41200000|3E800000
+F|Min speed|00000000|42C80000|3F800000
+F|Min speed diff (current)|C1A00000|42C80000|3F800000
+F|Min speed diff (new)|C1A00000|42C80000|3F800000
+F|Max speed difference|00000000|42C80000|3F800000
+F|Semicircle radius|00000000|42C80000|3F800000
+F|Semicircle angle|00000000|42B40000|3F800000
+F|Direction difference|00000000|42B40000|3F800000
+F|Steering smoothness|00000000|3F800000|3C23D70A
+S|AI.Slipstream.High skill
+F|Min distance|00000000|41200000|3E800000
+F|Min speed|00000000|42C80000|3F800000
+F|Min speed diff (current)|C1A00000|42C80000|3F800000
+F|Min speed diff (new)|C1A00000|42C80000|3F800000
+F|Max speed difference|00000000|42C80000|3F800000
+F|Semicircle radius|00000000|42C80000|3F800000
+F|Semicircle angle|00000000|42B40000|3F800000
+F|Direction difference|00000000|42B40000|3F800000
+F|Steering smoothness|00000000|3F800000|3C23D70A
+S|AI.Disorient
+F|Min impact speed|00000000|447A0000|41200000
+F|Max impact speed|00000000|447A0000|41200000
+F|Max delay|00000000|41200000|3DCCCCCD
+S|AI.Data
+S|AI.PlayerAISpeedRC
+F|0.0|00000000|3F800000|3A83126F
+F|0.125|00000000|3F800000|3A83126F
+F|0.25|00000000|3F800000|3A83126F
+F|0.375|00000000|3F800000|3A83126F
+F|0.5|00000000|3F800000|3A83126F
+F|0.625|00000000|3F800000|3A83126F
+F|0.75|00000000|3F800000|3A83126F
+F|0.875|00000000|3F800000|3A83126F
+F|1.0|00000000|3F800000|3A83126F
+S|AI.OpponentHandling
+S|AI.OpponentHandling.Global
+B|Apply Slowdown
+F|Min Slowdown at Dist|00000000|42C80000|40A00000
+F|Max Slowdown at Dist|00000000|43480000|40A00000
+F|Max Slowdown Accel|00000000|3F800000|3D4CCCCD
+F|TightCornerThreshold|00000000|41200000|3D4CCCCD
+F|BrakeThrotScale|00000000|41A00000|3D4CCCCD
+F|RacelineOffsetScale|00000000|3F800000|3C23D70A
+B|Force Speed Match
+F|Force Speed|00000000|42C80000|3F800000
+S|AI.OpponentHandling.Individual
+E|Base_Aggression
+E|Skill
+F|BrakeFactor|00000000|40000000|3C23D70A
+F|SteeringFactor|3DCCCCCD|41700000|3F000000
+F|ThrottleFactor|00000000|40000000|3C23D70A
+F|LookAheadMax|40A00000|42C80000|3F800000
+F|LookAheadMin|40A00000|42C80000|3F800000
+F|MaxSpeed|41200000|42C80000|3F800000
+F|SteeringDampingFactor|3F800000|42C80000|3F800000
+S|AI.Shortcuts
+F|Max distance to player|41200000|447A0000|41200000
+F|Max player prestige|42C80000|47435000|42C80000
+F|Distance contribution|00000000|3F800000|3A83126F
+F|Skill contribution|00000000|3F800000|3A83126F
+F|Aggression contribution|00000000|3F800000|3A83126F
+F|Prestige contribution|00000000|3F800000|3A83126F
+S|AI.Failures
+B|Enabled
+F|Min AI car health|3F800000|447A0000|41200000
+F|Min player car health|3F800000|447A0000|41200000
+F|Max AI car health|3F800000|447A0000|41200000
+F|Max player car health|3F800000|447A0000|41200000
+F|Max health at prestige|00000000|47C35000|42C80000
+F|AI damage multiplier from player|00000000|40800000|3DCCCCCD
+F|Blown engine oil spill min delay|3DCCCCCD|40A00000|3DCCCCCD
+F|Blown engine oil spill max delay|3DCCCCCD|40A00000|3DCCCCCD
+F|Blown engine oil spill min radius|3DCCCCCD|40000000|3DCCCCCD
+F|Blown engine oil spill max radius|3DCCCCCD|40000000|3DCCCCCD
+F|Blown engine oil spill friction mod|3DCCCCCD|41200000|3D4CCCCD
+F|Blown engine oil spill lifetime|41200000|447A0000|41200000
+F|NOS explosion velocity increment|00000000|42C80000|40A00000
+F|Overrev damage scale|00000000|42C80000|3F800000
+E|Force_failure
+S|AI.StartlineRevs
+F|Min Time Multiplier|3F000000|3FC00000|3D4CCCCD
+F|Max Time Multiplier|3F000000|3FC00000|3D4CCCCD
+F|Min Target Revs|459C4000|45FA0000|42C80000
+F|Max Target Revs|459C4000|45FA0000|42C80000
+F|Min Ramp Time Start|3F000000|40800000|3DCCCCCD
+F|Max Ramp Time Start|3F000000|40800000|3DCCCCCD
+F|Min Hold Time Start|3F000000|40800000|3DCCCCCD
+F|Max Hold Time Start|3F000000|40800000|3DCCCCCD
+F|Blend Factor|3DCCCCCD|3F666666|3D4CCCCD
+S|TFT
+F|Time Between TFTs|3F800000|41F00000|3F000000
+F|Time Between Same Char TFTs|3F800000|41F00000|3F000000
+E|TFTCharacter
+E|MovieType
+I|Type Choice|0|4|1
+B|Play Movie
+B|Movie On TFT

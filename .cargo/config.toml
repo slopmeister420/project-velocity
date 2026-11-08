@@ -1,0 +1,7 @@
+# cap parallel rustc so several agents building at once leave the pc usable
+[build]
+jobs = 6
+
+# dev runs and tests only; the shipped exe resolves --game / VELOCITY_GAME_DIR / its own dir
+[env]
+VELOCITY_GAME_DIR = { value = 'D:\games\xbox\games\project velocity debug', force = false }

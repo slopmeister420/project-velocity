@@ -1,0 +1,18 @@
+[package]
+name = "velocity"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+log.workspace = true
+bevy.workspace = true
+visos.workspace = true
+visos_render.workspace = true
+velocity_physics.workspace = true
+velocity_ai.workspace = true
+velocity_audio.workspace = true
+velocity_frontend.workspace = true
+velocity_game.workspace = true
+image = { version = "0.25", default-features = false, features = ["png"] }
