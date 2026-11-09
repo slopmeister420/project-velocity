@@ -89,6 +89,8 @@ pub struct VoiceSystem {
     pub avg_front: Vec3,
     pub avg_top: Vec3,
     pub avg_velocity: Vec3,
+    /// pan relative to the camera orientation (false = the original's world-axis pan)
+    pub apply_orientation: bool,
 }
 
 impl VoiceSystem {
@@ -131,6 +133,7 @@ impl VoiceSystem {
             avg_front: Vec3::Z,
             avg_top: Vec3::Y,
             avg_velocity: Vec3::ZERO,
+            apply_orientation: true,
         }
     }
 
@@ -301,6 +304,18 @@ impl VoiceSystem {
         self.avg_top = self.acc_top / n;
         self.avg_velocity = self.acc_vel / n;
         self.listener_position = self.avg_position;
+        // deviation from the original (user bug 2026-11-09): the original drops the averaged front/top and leaves
+        // the ds listener at its default orientation, so every positional sound pans by world X and swings
+        // L/R as the car turns. Apply the camera orientation VsAudio::UpdateListener computes (it flips x/z of the
+        // camera direction before handing it over; undo that for the pan frame).
+        if self.apply_orientation {
+            let front = Vec3::new(-self.avg_front.x, self.avg_front.y, -self.avg_front.z).normalize_or_zero();
+            let top = self.avg_top.normalize_or_zero();
+            if front != Vec3::ZERO && top != Vec3::ZERO {
+                self.listener_front = front;
+                self.listener_top = top;
+            }
+        }
     }
 
     /// recompute every playing buffer's mix gains and frequency from the dsound state (the mcpx 3d
@@ -361,6 +376,40 @@ impl VoiceSystem {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// chase camera 6 m behind a car on a straight and through a full turn: the car's own emitter stays centred
+    /// and the "left" emitter (physics: p + forward x up) stays left, whatever the heading.
+    #[test]
+    fn chase_camera_pan_is_heading_independent() {
+        let mixer = Arc::new(std::sync::Mutex::new(crate::audio::mixer::Mixer::new(MIXER_VOICES)));
+        let mut vs = VoiceSystem::new(mixer);
+        let c = vs.alloc(0x10, true).unwrap();
+        let l = vs.alloc(0x10, true).unwrap();
+        let mut trace = Vec::new();
+        for step in 0..=72 {
+            let a = step as f32 * 5f32.to_radians();
+            let fwd = Vec3::new(a.sin(), 0.0, a.cos());
+            let car = Vec3::new(10.0, 0.5, -20.0) + fwd * (step as f32 * 3.0);
+            let cam = car - fwd * 6.0 + Vec3::Y * 2.0;
+            let dir = (car - cam).normalize();
+            vs.listener_begin();
+            // VsAudio::update_listener hands over front with x/z flipped
+            vs.listener_add(0x20_0000, cam, Vec3::new(-dir.x, dir.y, -dir.z), Vec3::Y, Vec3::ZERO);
+            vs.listener_end();
+            vs.set_position(c, car);
+            vs.set_position(l, car + fwd.cross(Vec3::Y));
+            for id in [c, l] {
+                vs.set_distances(id, Some(5.0), Some(200.0));
+            }
+            let (sc, sl) = (vs.slot(c).unwrap(), vs.slot(l).unwrap());
+            let (gc, _) = vs.mix_params(&vs.buffers[sc]);
+            let (gl, _) = vs.mix_params(&vs.buffers[sl]);
+            trace.push((step, gc[0] - gc[1], gl[0] - gl[1]));
+            assert!(gc[0] - gc[1] < 0.15 && gc[1] - gc[0] < 0.15, "centre emitter off-centre at step {step}: {gc:?}");
+            assert!(gl[0] > gl[1], "left emitter not left at step {step}: {gl:?}");
+        }
+        eprintln!("pan trace (step, centre L-R, left L-R): {:?}", &trace[..4]);
+    }
 
     #[test]
     fn voice_ids_are_unique_across_pools() {

@@ -765,7 +765,7 @@ fn viewer_barriers(
         let read = |f: &str| std::fs::read(visos::file::resolve(&format!("{dir}\\{f}"))).map(|d| read_br(&d)).unwrap_or_default();
         let (arrows, no_entry) = (read("Barier01.br"), read("NoEntr01.br"));
         log::info!("trackview: {} arrow and {} no-entry barriers from {dir}", arrows.len(), no_entry.len());
-        load.write(crate::barrier_render::LoadBarrierRender { arrows, no_entry, render: true });
+        load.write(crate::barrier_render::LoadBarrierRender { arrows, no_entry, render: true, armco: vec![] });
         *done = 1;
     } else if state.frames >= 140 {
         if let Some(p) = cfg.barrier_hit {

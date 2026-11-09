@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use velocity_ai::plugin::AiState;
 use velocity_game::game_data_loading::game_data_loading::ELoadStep;
 use velocity_game::{GameManager, LoadStepMessage};
-use visos_render::barrier_render::LoadBarrierRender;
+use visos_render::barrier_render::{ArmcoLineDraw, LoadBarrierRender};
 
 /// runs in `First`, so the ai's "AI World Data" step (handled in the previous frame's `Last`) has loaded the lines
 fn barrier_render_init(
@@ -28,10 +28,22 @@ fn barrier_render_init(
                 .map(|l| l.points.iter().map(|p| Vec3::new(p.x, p.y, p.z)).collect())
                 .collect()
         };
+        // Armco.cpp 0x00011C50..0x00012290 draws the loaded armco lines (professional races) whatever the render flag says
+        let armco: Vec<ArmcoLineDraw> = ai
+            .as_ref()
+            .and_then(|a| a.world.as_ref())
+            .and_then(|w| w.armco.as_ref())
+            .map(|a| {
+                a.lines
+                    .iter()
+                    .map(|l| ArmcoLineDraw { kind: l.kind, closed: l.closed, points: l.points.iter().map(|p| Vec4::new(p.x, p.y, p.z, p.w)).collect() })
+                    .collect()
+            })
+            .unwrap_or_default();
         let render = if gm.vars.network_race { true } else { !gm.race.as_ref().is_some_and(|r| r.professional) };
         let (arrows, no_entry) = (lines(0), lines(1));
-        log::info!("barrier render init: {} arrow / {} no entry lines, render {render}", arrows.len(), no_entry.len());
-        out.write(LoadBarrierRender { arrows, no_entry, render });
+        log::info!("barrier render init: {} arrow / {} no entry / {} armco lines, render {render}", arrows.len(), no_entry.len(), armco.len());
+        out.write(LoadBarrierRender { arrows, no_entry, render, armco });
     }
 }
 

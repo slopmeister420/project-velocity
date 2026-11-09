@@ -128,7 +128,7 @@ fn camera_load_steps(
             // ReplayCamera_Fixed.cpp 0x00165400: the current race's track and race paths
             ELoadStep::ReplayCameraManager => {
                 if let Some(r) = race {
-                    cams.replay.init(&r.track_path, &r.race_path);
+                    cams.replay.init(&r.track_path, &crate::game_data_loading::game_data_loading::resolve_race_path(&r.track_path, &r.race_path));
                 }
             }
             _ => {}

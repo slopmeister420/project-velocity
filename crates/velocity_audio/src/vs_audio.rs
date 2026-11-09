@@ -1571,6 +1571,11 @@ impl VsAudio {
 
     /// SaveFileData 0x00104F30: the loaded save's playlists (also kept for every later InitMusic).
     pub fn set_lists(&mut self, audio: &mut AudioSystem, s: &SavedPlaylists) {
+        // port: a save whose playlist block was never written (all zero: first list unnamed, as `init_music` also
+        // treats it) keeps the MusLists defaults instead of wiping every list (empty DJ booth, no music)
+        if s.lists[0][0] == 0 {
+            return;
+        }
         self.saved_lists = s.clone();
         self.apply_lists(audio, s);
     }
@@ -1784,6 +1789,22 @@ mod tests {
                        (START_AIRHORN, "START_AIRHORN"), (ZONE_HEARTBEAT, "MODE_ZONE_HEARTBEAT")] {
             assert_eq!(h, crc(n), "{n}");
         }
+    }
+
+    /// port: an unwritten (all zero) playlist block of a save keeps the default lists; a written one replaces them.
+    #[test]
+    fn zero_saved_lists_keep_defaults() {
+        let (mut audio, _mixer) = AudioSystem::with_default_mixer();
+        let mut vs = VsAudio::new(&mut audio);
+        vs.init(&mut audio, &VsAudioInitInfo { frontend: true, ..Default::default() });
+        let before = vs.tracks.clone();
+        assert!(!before.lists[0].tracks.is_empty() && before.lists[0].name != 0);
+        vs.set_lists(&mut audio, &SavedPlaylists::default());
+        assert_eq!(vs.tracks.lists, before.lists);
+        let mut s = vs.get_lists();
+        s.lists[0][1] = 0; // a written block with an emptied first list is the user's choice
+        vs.set_lists(&mut audio, &s);
+        assert!(vs.tracks.lists[0].tracks.is_empty());
     }
 
     /// a front-end session: groups, gui sounds and the front-end playlist from the music banks.

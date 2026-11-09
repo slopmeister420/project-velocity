@@ -109,6 +109,8 @@ pub mod action {
 #[derive(Clone, Default)]
 pub struct FeInput {
     pub pads: [[ActionState; action::COUNT]; 2],
+    /// port: PC keyboard keys typed this frame (the on-screen keyboard takes them)
+    pub typed: Vec<crate::feck2::screens::common::fe_keyboard_overlay::PcKey>,
 }
 
 /// `g_AttractMode` (`byte_6F5A28`, core's `CAttractMode`) and the game globals its front end calls touch. The plugin
@@ -873,6 +875,13 @@ impl Feck2 {
                 self.digital(pad, MENU_DOWN, 28, 29, 30);
                 self.axis(pad, CAMERA_ROTATE_HORIZ, [34, 35, 36], [37, 38, 39]);
                 self.axis(pad, CAMERA_ROTATE_VERT, [40, 41, 42], [43, 44, 45]);
+            }
+        }
+        // port: PC keyboard typing into the on-screen keyboard
+        if !input.typed.is_empty() {
+            use crate::feck2::screens::common::fe_keyboard_overlay::kb;
+            for &t in &input.typed {
+                kb(self, |k, fe| k.active && k.pc_key(fe, t));
             }
         }
         self.stopwatch = now;

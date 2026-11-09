@@ -5,6 +5,8 @@
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::asset::RenderAssetUsages;
 use bevy::camera::RenderTarget;
+use bevy::input::keyboard::{Key, KeyboardInput};
+use bevy::input::ButtonState;
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureFormat;
 use bevy::render::view::screenshot::{save_to_disk, Screenshot, ScreenshotCaptured};
@@ -154,6 +156,30 @@ const GARAGE_SCRIPT: &[(u32, Option<usize>, Option<&str>)] = &[
     (540, None, Some("garage_sell_dialog")),
     (550, Some(key::B), None),
 ];
+
+/// `fecapture typing`: profile select -> the on-screen keyboard, then a name typed as window key events (`KeyboardInput`
+/// messages written by `script`, same path as the PC keyboard): "Kurwiszon_" (frame 340), backspace + left + 'X' (400)
+const TYPING_SCRIPT: &[(u32, Option<usize>, Option<&str>)] = &[
+    (160, Some(key::START), None),
+    (270, Some(key::A), None),
+    (330, None, Some("typing_empty")),
+    (380, None, Some("typing_name")),
+    (440, None, Some("typing_edited")),
+    (480, None, Some("typing_done")),
+];
+
+/// the window key events `fecapture typing` sends: (frame, key, text)
+fn typing_events(f: u32) -> Vec<(KeyCode, Key, Option<&'static str>)> {
+    match f {
+        340 => "Kurwiszon_".chars().map(|c| {
+            let s: &'static str = Box::leak(c.to_string().into_boxed_str());
+            (KeyCode::KeyA, Key::Character(s.into()), Some(s))
+        }).collect(),
+        400 => vec![(KeyCode::Backspace, Key::Backspace, None), (KeyCode::ArrowLeft, Key::ArrowLeft, None), (KeyCode::KeyX, Key::Character("X".into()), Some("X"))],
+        460 => vec![(KeyCode::Enter, Key::Enter, Some("\r"))],
+        _ => Vec::new(),
+    }
+}
 
 /// `fecapture career`: main menu Start -> profile select, back, THE SCENE -> hangout, the garage character's menu,
 /// Tory's event offer (events from a freshly built event database; no game flow, so nothing is started)
@@ -326,6 +352,8 @@ fn mode() -> &'static str {
         "decals"
     } else if a.iter().any(|x| x == "mix") {
         "mix"
+    } else if a.iter().any(|x| x == "typing") {
+        "typing"
     } else if a.iter().any(|x| x == "career") {
         "career"
     } else if a.iter().any(|x| x == "scene") {
@@ -354,7 +382,19 @@ fn script_for(mode: &str) -> &'static [(u32, Option<usize>, Option<&'static str>
         "decals" => DECALS_SCRIPT,
         "mix" => MIX_SCRIPT,
         "career" => CAREER_SCRIPT,
+        "typing" => TYPING_SCRIPT,
         "scene" => SCENE_SCRIPT,
+        // FECAPTURE_LIST_ROW=n: the DJ's n-th list (DOWN n times), then DOWN DOWN A = "display tracks", one shot
+        "playlist" if std::env::var("FECAPTURE_LIST_ROW").is_ok() => {
+            let n: u32 = std::env::var("FECAPTURE_LIST_ROW").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
+            let mut v: Vec<(u32, Option<usize>, Option<&'static str>)> = PLAYLIST_SCRIPT.iter().take_while(|s| s.0 < 1140).cloned().collect();
+            v.push((1140, None, Some("playlist_dj")));
+            for i in 0..n {
+                v.push((1142 + 4 * i, Some(key::DOWN), None));
+            }
+            v.extend([(1160, Some(key::A), None), (1250, None, Some("playlist_row_menu")), (1300, Some(key::DOWN), None), (1330, Some(key::DOWN), None), (1360, Some(key::A), None), (1440, None, Some("playlist_row_tracks"))]);
+            Box::leak(v.into_boxed_slice())
+        }
         "playlist" => PLAYLIST_SCRIPT,
         "teams" => TEAMS_SCRIPT,
         "options" => OPTIONS_SCRIPT,
@@ -608,6 +648,18 @@ fn main() {
                 race_mode: None,
             }));
         })
+        .add_systems(Startup, |mut a: MessageWriter<velocity_audio::AudioCommand>, mut gate: ResMut<velocity_audio::AudioUpdateGate>| {
+            // FECAPTURE_AUDIO_UPDATE=1: VsAudio::Update runs every frame as in the game (music picks, track changes)
+            if std::env::var_os("FECAPTURE_AUDIO_UPDATE").is_some() {
+                gate.0 = true;
+            }
+            // FECAPTURE_LISTS=<a profile's "Primary" save>: its playlists as the profile load sends them (SaveFileData 0x00104F30)
+            if let Some(p) = std::env::var_os("FECAPTURE_LISTS") {
+                let b = std::fs::read(p).expect("FECAPTURE_LISTS");
+                let o = 0x1EF4 + velocity_audio::vs_audio_track_list::SavedPlaylists::OPTIONS_OFFSET;
+                a.write(velocity_audio::AudioCommand::SetLists(Box::new(velocity_audio::vs_audio_track_list::SavedPlaylists::from_bytes(&b[o..]))));
+            }
+        })
         .add_systems(Startup, setup)
         .add_systems(Update, (retarget, script));
     if std::env::var_os("FECAPTURE_NO_3D").is_some() {
@@ -658,11 +710,24 @@ fn script(
     mut fe: ResMut<velocity_frontend::FrontendState>,
     mut exit: MessageWriter<AppExit>,
     images: Res<Assets<Image>>,
+    mut kbd: MessageWriter<bevy::input::keyboard::KeyboardInput>,
 ) {
     let overlay = images.get(&fe.image).and_then(|i| i.data.as_deref());
     cap.frame += 1;
     let f = cap.frame;
     let mode = mode();
+    if mode == "typing" {
+        for (key_code, logical_key, text) in typing_events(f) {
+            kbd.write(KeyboardInput {
+                key_code,
+                logical_key,
+                state: ButtonState::Pressed,
+                text: text.map(Into::into),
+                repeat: false,
+                window: Entity::PLACEHOLDER,
+            });
+        }
+    }
     let script = script_for(mode);
     if f == 3 {
         if let Some(x) = fe.frontend.as_mut() {
@@ -682,10 +747,6 @@ fn script(
                 "career" | "scene" => x.fe.career.events = career_events(),
                 "playlist" => {
                     x.fe.career.events = career_events();
-                    // VisosAudio's playlists (the .mus lists) as the bevy side mirrors them
-                    if let Some(t) = velocity_audio::vs_audio_track_list::VsAudioTrackList::load() {
-                        x.fe.playlist.tracks = t;
-                    }
                 }
                 "teams" => {
                     // every event unlocked (as with `--unlock`) so the browser has its challenges page

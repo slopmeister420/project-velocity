@@ -175,6 +175,23 @@ pub struct MapInput {
     pub police: Vec<([f32; 3], bool)>, // position, lights on
 }
 
+/// COSDMapRender.cpp 0x000E8E70 — the heading angle: `acos(X . fwd)`, negated when `(X x fwd).y < 0` (fwd.z > 0), plus pi
+/// (the binary takes the acos of the x component as is, the vector being a unit body row)
+pub fn heading_angle(f: [f32; 3]) -> f32 {
+    let mut a = f[0].clamp(-1.0, 1.0).acos();
+    if f[2] > 0.0 {
+        a = -a;
+    }
+    a + std::f32::consts::PI
+}
+
+/// the binary's texture matrix mirrors u (`Renderer 0x2AB620(-1,1,1)`), which turns its rotation by `a` into the
+/// panel rotation (y down, uv = player + R(angle) * corner) that puts the car's forward vector (u = x, v = z) at the
+/// top of the panel: `3pi/2 - a` (= `atan2(fwd.z, fwd.x) + pi/2`). Measured by `map_forward_is_up`.
+pub fn panel_angle(a: f32) -> f32 {
+    3.0 * std::f32::consts::FRAC_PI_2 - a
+}
+
 /// `COSDMapRender`
 pub struct COSDMapRender {
     pub map: HudMap,
@@ -221,15 +238,7 @@ impl COSDMapRender {
     pub fn render(&mut self, input: &MapInput, dt: f32, out: &mut DrawList) {
         let p = self.map.uv(input.player);
         // heading: acos(x . fwd), signed by the cross product's y, plus pi
-        let f = input.heading;
-        let len = (f[0] * f[0] + f[2] * f[2]).sqrt().max(1e-6);
-        let mut a = (f[0] / len).clamp(-1.0, 1.0).acos();
-        if f[2] / len > 0.0 {
-            a = -a;
-        }
-        a += std::f32::consts::PI;
-        // the hud_map_screen model's uv runs a quarter turn from the panel axes: forward ends up pointing up
-        a -= std::f32::consts::FRAC_PI_2;
+        let a = panel_angle(heading_angle(input.heading));
         let window = WINDOW / (self.map.max - self.map.min);
         let (s, c) = a.sin_cos();
         // panel corners (-0.5..0.5, y down), uv = player + R * (corner * window); the panel is the whole screen texture
@@ -276,6 +285,61 @@ fn screen_quad(texture: TextureId, pos: [[f32; 2]; 4], uv: [[f32; 2]; 4], colour
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn heading_angle_values() {
+        use std::f32::consts::PI;
+        // values of 0xE8E70 for the cardinal body-row-0 directions
+        assert!((heading_angle([1.0, 0.0, 0.0]) - PI).abs() < 1e-5);
+        assert!((heading_angle([0.0, 0.0, 1.0]) - PI / 2.0).abs() < 1e-5);
+        assert!((heading_angle([0.0, 0.0, -1.0]) - 1.5 * PI).abs() < 1e-5);
+        assert!((heading_angle([-1.0, 0.0, 0.0]) - 2.0 * PI).abs() < 1e-5);
+    }
+
+    /// builds a straight road (300 behind, 2000 ahead of the player) in direction `d`, renders the map at that heading
+    /// and measures the screen angle of the road ahead of the marker (centre of the panel): it must point up.
+    #[test]
+    fn map_forward_is_up() {
+        let mut log = String::new();
+        for deg in [0.0f32, 37.0, 90.0, 135.0, 180.0, 225.0, 270.0, 322.0] {
+            let t = deg.to_radians();
+            let d = [t.cos(), 0.0, t.sin()]; // world heading (x, z)
+            let n = [-d[2], 0.0, d[0]];
+            let c = [3000.0f32, 0.0, 3000.0];
+            let edge = |s: f32| (0..=46).map(|i| {
+                let l = -300.0 + i as f32 * 50.0;
+                [c[0] + d[0] * l + n[0] * s, 0.0, c[2] + d[2] * l + n[2] * s]
+            }).collect::<Vec<_>>();
+            let (i, o) = (edge(-25.0), edge(25.0));
+            let map = HudMap::construct(&HudMapDesc { inside: &i, outside: &o, size: 256, border: 4, closed: false });
+            let mut tex = TextureStore::default();
+            let clear = Rgba { width: 1, height: 1, data: vec![0, 0, 0, 0] };
+            let (grid, blip) = (tex.add(1, clear.clone()), tex.add(2, clear));
+            let rgba = map.to_rgba([0, 255, 0], 0);
+            let texture = tex.add(3, rgba);
+            let mut r = COSDMapRender { map, texture, grid, player_blip: blip, rival_blip: blip, police_on: blip, police_off: blip, centre: [0.0; 3], size: 8.0, flash: true, flash_time: 1.0 };
+            let mut dl = DrawList::default();
+            r.render(&MapInput { player: c, heading: d, ..Default::default() }, 0.0, &mut dl);
+            let img = dl.rasterise_overlay(&tex, 256, 256);
+            let (mut sx, mut sy, mut cnt) = (0.0f64, 0.0f64, 0.0f64);
+            for y in 0..256 {
+                for x in 0..256 {
+                    let px = &img.data[((y * 256 + x) * 4) as usize..][..4];
+                    if px[3] > 128 && px[1] > 128 {
+                        sx += x as f64 - 127.5;
+                        sy += y as f64 - 127.5;
+                        cnt += 1.0;
+                    }
+                }
+            }
+            assert!(cnt > 200.0, "heading {deg}: no road drawn");
+            // screen angle of the road ahead, from straight up, clockwise positive
+            let ang = (sx / cnt).atan2(-sy / cnt).to_degrees();
+            log.push_str(&format!("heading x,z = ({:.3}, {:.3}) -> a = {:.1} deg, panel {:.1} deg; road ahead at {:.1} deg from screen-up ({} px)\n", d[0], d[2], heading_angle(d).to_degrees(), panel_angle(heading_angle(d)).to_degrees(), ang, cnt));
+            assert!(ang.abs() < 5.0, "heading {deg}: road ahead points {ang} deg off up");
+        }
+        let _ = std::fs::write(concat!(env!("CARGO_MANIFEST_DIR"), "/../../research/map_heading_check.log"), log);
+    }
 
     #[test]
     fn construct_ring() {

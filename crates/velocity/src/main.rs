@@ -11,6 +11,7 @@ mod attract;
 mod barriers;
 mod bridge;
 mod car_audio;
+mod crash_log;
 mod debug_menu;
 mod frame_cap;
 mod hud;
@@ -25,7 +26,28 @@ mod trail_blazer_state;
 
 use bevy::prelude::*;
 
+const HELP: &str = "\
+Project Velocity (Rust/Bevy rewrite)
+
+Usage: velocity [OPTIONS]
+
+Options:
+      --game <DIR>   Path to your original game folder (the one with default.xbe).
+                     Default: $VELOCITY_GAME_DIR, then the folder next to velocity.exe.
+  -u, --unlock       Boot with the debug build's unlock tweaks on.
+      --fps <N>      Frame rate cap; 0 = uncapped (also turns V-Sync off).
+      --log          Write velocity.log next to the exe (or set VELOCITY_LOG=1).
+      --smoke-test   Scripted headless test run; exits 0 on success.
+  -h, --help         Show this help and exit.
+";
+
 fn main() {
+    // crash.log in %LOCALAPPDATA%\Velocity on any panic / native fault, with or without --log
+    crash_log::install();
+    if std::env::args().skip(1).any(|a| a == "--help" || a == "-h") {
+        print_help();
+        return;
+    }
     if std::env::args().any(|a| a == "--slice-test" || a == "--smoke-test") {
         smoke_test::fresh_save_dir();
     }
@@ -118,6 +140,33 @@ fn file_log_layer(_app: &mut App) -> Option<bevy::log::BoxedLayer> {
         prev(info);
     }));
     Some(fmt::layer().with_ansi(false).with_writer(std::sync::Mutex::new(file)).boxed())
+}
+
+/// prints `HELP`; the release exe has no console, so attach to the parent's (or show a dialog when double-clicked)
+fn print_help() {
+    use std::io::Write;
+    #[cfg(all(windows, not(debug_assertions)))]
+    {
+        #[link(name = "kernel32")]
+        unsafe extern "system" {
+            fn GetStdHandle(n: u32) -> isize;
+            fn AttachConsole(pid: u32) -> i32;
+        }
+        // STD_OUTPUT_HANDLE = -11; none when started from a terminal without redirection
+        let h = unsafe { GetStdHandle((-11i32) as u32) };
+        if h == 0 || h == -1 {
+            // ATTACH_PARENT_PROCESS = -1
+            if unsafe { AttachConsole(u32::MAX) } != 0 {
+                if let Ok(mut con) = std::fs::OpenOptions::new().write(true).open("CONOUT$") {
+                    let _ = con.write_all(HELP.as_bytes());
+                    return;
+                }
+            }
+            message_box(HELP);
+            return;
+        }
+    }
+    let _ = std::io::stdout().write_all(HELP.as_bytes());
 }
 
 #[cfg(not(debug_assertions))]

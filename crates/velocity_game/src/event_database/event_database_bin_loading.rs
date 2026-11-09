@@ -73,7 +73,7 @@ impl CEvent {
 
     fn next_race_in_round(&mut self, rand: &mut CrtRand) -> bool {
         let Some(races) = self.races.as_mut() else { return true };
-        let round = &mut races.rounds[races.current_round as usize];
+        let Some(round) = races.rounds.get_mut(races.current_round as usize) else { return true };
         round.current_race = round.current_race.wrapping_add(1);
         if (round.current_race as usize) < round.races.len() {
             let i = round.current_race as usize;
@@ -106,7 +106,11 @@ impl CEvent {
     /// whether its round is over. the original then adds `raceline length * laps` to the player vehicle's
     /// mileage (VehicleDatabase 0x001850B0), the caller's job: `laps` of the finished race is returned with it.
     pub fn race_finished(&mut self, rand: &mut CrtRand) -> (bool, u8) {
-        let cur = self.races.as_ref().map(|r| (r.current_round, r.rounds[r.current_round as usize].current_race));
+        // current_round is one past the last round once the event is over; the original reads past the array here
+        // past the last round the stored race pointer (+12) is stale but valid: keep `last_race`
+        let cur = self.races.as_ref().and_then(|r| {
+            r.rounds.get(r.current_round as usize).map(|rd| (r.current_round, rd.current_race)).or(r.last_race)
+        });
         let laps = self.current_race().map(|r| r.laps).unwrap_or(0);
         let done = match self.kind {
             EVENT_KIND_SINGLE | EVENT_KIND_SERIES => self.series_race_finished(rand),
@@ -226,5 +230,65 @@ mod tests {
         assert!(!o.success);
         assert_eq!(o.place, 0);
         assert_eq!(prize_money(1000.0, 0, 4, 1) as i32, 400);
+    }
+
+    struct NoCareer;
+    impl crate::event_database::event_database::CareerQuery for NoCareer {
+        fn prestige(&self) -> i32 {
+            0
+        }
+        fn owns_vehicle(&self, _: u32) -> bool {
+            false
+        }
+    }
+
+    /// RaceOver 0x000BDB50 for a database event: positions, race / round / event over, completion + unlock pass.
+    fn finish_race(db: &mut crate::event_database::event_database_track_loading::CEventDatabase, i: usize, rand: &mut CrtRand) {
+        let e = &mut db.events[i];
+        if let Some(r) = e.current_race_mut() {
+            let n = r.num_competitors as usize;
+            r.finish_positions = (1..=n as u8).collect();
+        }
+        let (round_over, _) = e.race_finished(rand);
+        if round_over && e.round_finished(rand) {
+            let o = e.update_at_end_of_event();
+            if o.success {
+                crate::event_database::event_database::CEvent::complete(db, i, &NoCareer);
+            }
+        }
+    }
+
+    /// completing an event unlocks its dependants, also for the drag event (single race, the session runs three
+    /// drag rounds, each calling RaceOver: the later calls hit the finished event and must neither panic nor undo it).
+    #[test]
+    fn completion_unlocks_dependants() {
+        use crate::event_database::event_database_track_loading::CEventDatabase;
+        use crate::event_database::event_database::{EVENT_FLAG_COMPLETED, EVENT_FLAG_LOCKED};
+        if visos::file::platform::try_game_dir().is_err() {
+            return;
+        }
+        let mut db = CEventDatabase::default();
+        db.build(&|_| true, &NoCareer);
+        let mut rand = CrtRand::default();
+        let first = db.find_event(0x56BC66F8).unwrap();
+        let second = db.find_event(0xCFB53742).unwrap();
+        assert!(db.events[second].flags & EVENT_FLAG_LOCKED != 0);
+        db.events[first].reset(&mut rand);
+        db.events[first].competitors.as_mut().unwrap()[0].human = 1;
+        finish_race(&mut db, first, &mut rand);
+        assert!(db.events[first].flags & EVENT_FLAG_COMPLETED != 0);
+        assert!(db.events[second].flags & EVENT_FLAG_LOCKED == 0);
+        // LADown drag event (UG tier 1 "Event 05"): three rounds, three RaceOvers
+        let drag = db.find_event(0x51D1A2E1).unwrap();
+        assert_eq!(db.events[drag].races.as_ref().unwrap().rounds[0].races[0].race_type, 5);
+        db.events[drag].reset(&mut rand);
+        db.events[drag].competitors.as_mut().unwrap()[0].human = 1;
+        for _ in 0..3 {
+            finish_race(&mut db, drag, &mut rand);
+            assert!(db.events[drag].flags & EVENT_FLAG_COMPLETED != 0);
+        }
+        // the next London event is gated by the story event 0x25A61F72 (7 completed events in the tier), not by this one
+        let london = db.find_event(0xC8D8F35B).unwrap();
+        assert!(db.events[london].flags & EVENT_FLAG_LOCKED != 0);
     }
 }

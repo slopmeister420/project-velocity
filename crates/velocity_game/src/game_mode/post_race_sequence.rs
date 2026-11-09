@@ -96,10 +96,13 @@ impl PostRaceSequence {
         match new {
             1 => out.push(PostRaceEvent::Fade(1.0)),
             2 => {
-                self.setup(ctx, out);
-                // PostRaceSequence.cpp 0x000C4460
-                self.camera = true;
-                out.push(PostRaceEvent::CameraCut);
+                let found = self.setup(ctx, out);
+                // PostRaceSequence.cpp 0x000C4460; deviation: without the marker the original reads a null
+                // CMarkers::Find result (garbage camera at the origin = void), so the camera stays as it was
+                if found {
+                    self.camera = true;
+                    out.push(PostRaceEvent::CameraCut);
+                }
                 self.counter = 0;
             }
             3 => {
@@ -151,12 +154,12 @@ impl PostRaceSequence {
     }
 
     /// PostRaceSequence.cpp 0x000C3F70 — line the first three up at the marker
-    fn setup(&mut self, ctx: &PostRaceContext, out: &mut Vec<PostRaceEvent>) {
+    fn setup(&mut self, ctx: &PostRaceContext, out: &mut Vec<PostRaceEvent>) -> bool {
         let crc = visos::handy::handy_crc::crc32(b"POST_RACE_STUNT_AREA", 0);
         let Some(m) = ctx.markers.find(crc) else {
             // the original dereferences the missing marker (no shipped track has one)
             log::warn!("PostRaceSequence: no POST_RACE_STUNT_AREA marker");
-            return;
+            return false;
         };
         self.marker = m.position;
         if let Some(y) = (ctx.ground_y)(self.marker) {
@@ -188,6 +191,7 @@ impl PostRaceSequence {
             }
             out.push(PostRaceEvent::DisableTraffic);
         }
+        true
     }
 
     /// PostRaceSequence.cpp 0x000C3950 — the winner's stunt
@@ -304,6 +308,8 @@ mod tests {
             p.update(0.04, 1.0, &ctx, &mut out);
         }
         assert_eq!(p.state, 3);
-        assert!(p.camera_active());
+        // no marker: the camera is left alone (no view at the origin)
+        assert!(!p.camera_active());
+        assert!(p.camera_view().is_none());
     }
 }

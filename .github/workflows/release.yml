@@ -1,0 +1,98 @@
+name: Release
+
+# run manually: Actions -> Release -> Run workflow (tag, e.g. v0.2.0-alpha)
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v0.2.0-alpha"
+        required: true
+        type: string
+      prerelease:
+        description: "Mark as pre-release"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release -p velocity
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path out | Out-Null
+          Copy-Item target/release/velocity.exe out/
+          Compress-Archive -Path out/velocity.exe -DestinationPath velocity-windows-x86_64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: velocity-windows-x86_64
+          path: velocity-windows-x86_64.zip
+
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: System libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev \
+            libvulkan-dev libx11-dev libxext-dev libxcursor-dev libxi-dev libxrandr-dev libxfixes-dev \
+            libxss-dev libxtst-dev libdrm-dev libgbm-dev libegl1-mesa-dev libgl1-mesa-dev libpulse-dev \
+            libdbus-1-dev libdecor-0-dev
+      - name: Rust toolchain
+        run: |
+          rm -f rust-toolchain.toml
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release -p velocity
+      - name: Package
+        run: |
+          mkdir out
+          cp target/release/velocity out/
+          tar -C out -czf velocity-linux-x86_64.tar.gz velocity
+      - uses: actions/upload-artifact@v4
+        with:
+          name: velocity-linux-x86_64
+          path: velocity-linux-x86_64.tar.gz
+
+  release:
+    needs: [windows, linux]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          PRE: ${{ inputs.prerelease }}
+        run: |
+          cat > notes.md <<'EOF'
+          Early, unfinished build of the Project Velocity rewrite. You need your own copy of the original game files:
+          put the executable next to `default.xbe` in the game folder, or run `velocity --game <folder>`.
+
+          | File | Platform |
+          |---|---|
+          | `velocity-windows-x86_64.zip` | Windows x64 |
+          | `velocity-linux-x86_64.tar.gz` | Linux x86_64 |
+
+          > **Warning: the Linux build has not been tested.** It compiles on CI, but nobody has run it on Linux yet.
+          > It may fail to start or behave incorrectly. Please report what you find.
+
+          Expect bugs: the project is unfinished.
+          EOF
+          flags=""
+          if [ "$PRE" = "true" ]; then flags="--prerelease"; fi
+          gh release create "$TAG" dist/velocity-windows-x86_64.zip dist/velocity-linux-x86_64.tar.gz \
+            --repo "${{ github.repository }}" --target "${{ github.sha }}" --title "$TAG" --notes-file notes.md $flags

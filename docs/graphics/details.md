@@ -1890,6 +1890,23 @@ effects").
   2/3 sides; `glass_*_damage`). `CollisionFx { msg }`: CarDamageFX 0x00078880 impact particles (`Car_impacts_*`).
 - Car flags (`CarDamage::car_flags`, car data +2256: 1 front / 2 rear lights intact) gate the light rendering 0x0006B1D0.
 
+### Professional races: armco rails and posts (fixed 2026-11-09; the first reading "no barriers" was wrong)
+- Professional = `VsAIWorld::Init(barriers = !professional, armco = professional)` (InGameInit 0xB6773) and `BarrierRender 0x107560(!professional)`
+  draws no arrow / no-entry barriers, but Armco.cpp draws the loaded `armco01.ar` itself: GameManager 0xB9A83 (per view, before the
+  barriers) calls `sub_12160` (0x12160) whenever armco lines are loaded; the render flag is irrelevant. Mesh `Armco::BuildMesh` 0x12440
+  (FCMesh + FCQuadTree) is collision only; the visuals are built in `sub_11C50` (0x11C50, from `Armco::Load` 0x11090).
+- Rails: lines of kind 2 / 3 -> `CStripFromSplines 0x810F0` strip of (base, base + 1.2 m) vertex pairs (kind 3: top first), all points (closed
+  lines repeat the first), u = side 0/1 (kind 3 flips it except for the first pair), v = distance along each side scaled to whole `trunc(len/32 + 0.5)`
+  repeats (0x81C80), lit per vertex (0x81940: ambient 0.1 + lights 0.7/0.3/0.2 along (0,66,-115), (100,66,57), (-100,66,57), progressive normals
+  0x81780), texture `Armco05` of SCENERYT.VCD (`off_684E40[0]`, the random index arg is 0), ArmcoShader: blend 3, wrap, z test+write.
+  Posts: the `armco_post` model (SCENERYM.VCD) translated to every point with w == 1 (>= 5 m apart), 0x12290.
+- Port: `visos_render::barrier_render::{ArmcoLineDraw, armco_strip, BarrierRender::draw_armco}` (`LoadBarrierRender.armco`, filled by the bin's
+  `barriers.rs` from `AiWorld.armco`), `EffectTexture::Scenery`. Frustum-culled in 8-segment chunks (the original culls per primitive chunk by
+  sphere, 0x7D4E0/0x7D3C0). Light sign / packed-direction rounding assumed (N.L > 0 with the stored directions). Seen: LADown Circuit/Race05,
+  189 chunks + 527 posts, red/white rails both sides (`research/screens/armco_3_driving.png`).
+- Shipped data: pro races ship `armco*.ar` (LADown Circuit/Race05-06, Sprint/Race04-05, London Circuit/Race03,07,10, London2 Circuit/Race02,04,05,07,10,
+  Sprint/Race02); underground races `Barier*.br` / `NoEntr*.br`; LACoast, Tokyo*, ExecTest, Cruise, Circuit/Race11-15 ship neither.
+
 ### Requests from core (collision listener) — done, see "Barrier render"; core's wiring requested in core.md
 
 ### Barrier render (`barrier_render`, BarrierRender.cpp 0x00106B30..0x0010B740; `BarrierRenderPlugin` in RenderPlugin)

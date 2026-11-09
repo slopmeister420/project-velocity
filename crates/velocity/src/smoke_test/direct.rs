@@ -175,6 +175,8 @@ pub fn drive(
                 Ok(t) => (t.laps, t.opponents, t.difficulty, t.weather, t.pro),
                 Err(_) => return,
             };
+            // SMOKE_LAPS=<n> shortens the race (finish tests)
+            let laps = std::env::var("SMOKE_LAPS").ok().and_then(|v| v.parse().ok()).unwrap_or(laps);
             let r = p.race;
             let id = f.fe.events.races[r].id_crc;
             let q = &mut f.fe.quick_race;

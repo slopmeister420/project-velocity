@@ -80,6 +80,118 @@ pub struct LoadBarrierRender {
     pub no_entry: Vec<Vec<Vec3>>,
     /// 0x00107560 argument (flag bit 1): draw at all
     pub render: bool,
+    /// the loaded `armco01.ar` lines (professional races, Armco.cpp 0x00011090); drawn whatever `render` says
+    pub armco: Vec<ArmcoLineDraw>,
+}
+
+/// one armco line: kind 2 / 3 get a 1.2 m rail strip (winding +1 / -1), every point with w == 1 a post
+#[derive(Clone, Debug, Default)]
+pub struct ArmcoLineDraw {
+    pub kind: u16,
+    pub closed: bool,
+    /// xyz + w (1 = a post stands here)
+    pub points: Vec<Vec4>,
+}
+
+/// Armco.cpp 0x00011C50: rail height, metres per texture repeat, `Armco05`, light directions / colours / ambient
+const ARMCO_HEIGHT: f32 = 1.2;
+const ARMCO_REPEAT: f32 = 32.0;
+const ARMCO_LIGHT_DIRS: [[f32; 3]; 3] = [[0.0, 66.0, -115.0], [100.0, 66.0, 57.0], [-100.0, 66.0, 57.0]];
+const ARMCO_LIGHT_COLOURS: [f32; 3] = [0.7, 0.3, 0.2];
+const ARMCO_AMBIENT: f32 = 0.1;
+/// segments per drawn chunk (the original culls per primitive chunk by a sphere)
+const ARMCO_CHUNK: usize = 8;
+
+/// a culled piece of an armco rail strip
+pub struct ArmcoChunk {
+    centre: Vec3,
+    radius: f32,
+    verts: Vec<EffectVertex>,
+}
+
+/// CStripFromSplines 0x000810F0 + 0x00081C80 + 0x00081780 + 0x00081940: the rail as a triangle strip of
+/// (base, top) pairs (kind 2) or (top, base) (kind 3), v along the line in whole 32 m repeats, vertices lit by
+/// the three armco lights plus ambient
+pub fn armco_strip(l: &ArmcoLineDraw) -> Vec<EffectVertex> {
+    if l.points.len() < 2 || !(l.kind == 2 || l.kind == 3) {
+        return Vec::new();
+    }
+    let mut base: Vec<Vec3> = l.points.iter().map(|p| p.truncate()).collect();
+    if l.closed {
+        base.push(base[0]);
+    }
+    let up = Vec3::new(0.0, ARMCO_HEIGHT, 0.0);
+    let mut pos = Vec::with_capacity(base.len() * 2);
+    for b in &base {
+        if l.kind == 2 {
+            pos.extend([*b, *b + up]);
+        } else {
+            pos.extend([*b + up, *b]);
+        }
+    }
+    let n = pos.len();
+    // 0x00081C80: side value across the rail (kind 3 flips it, but not for the first pair), distance along it
+    let mut uv = vec![Vec2::ZERO; n];
+    for k in 0..2usize {
+        uv[k] = Vec2::new(k as f32, 0.0);
+        let mut acc = 0.0f32;
+        let mut j = k;
+        while j + 2 < n {
+            acc += pos[j].distance(pos[j + 2]);
+            uv[j + 2] = Vec2::new(if l.kind == 3 { (1 - k) as f32 } else { k as f32 }, acc);
+            j += 2;
+        }
+        let repeats = (acc / ARMCO_REPEAT + 0.5) as i32 as f32;
+        let ratio = repeats / acc;
+        let mut j = k;
+        while j + 2 < n {
+            uv[j + 2].y *= ratio;
+            j += 2;
+        }
+    }
+    // 0x00081780: face normals added to their three vertices, each renormalised at once
+    let mut nrm = vec![Vec3::ZERO; n];
+    for i in 0..n.saturating_sub(2) {
+        let e1 = pos[i + 1] - pos[i];
+        let e2 = pos[i + 2] - pos[i];
+        let f = if i % 2 == 0 { e1.cross(e2) } else { e2.cross(e1) }.normalize_or_zero();
+        for j in i..i + 3 {
+            nrm[j] = (nrm[j] + f).normalize_or_zero();
+        }
+    }
+    let dirs = ARMCO_LIGHT_DIRS.map(|d| Vec3::from(d).normalize());
+    (0..n)
+        .map(|i| {
+            let mut c = Vec3::splat(ARMCO_AMBIENT);
+            for (d, col) in dirs.iter().zip(ARMCO_LIGHT_COLOURS) {
+                let dot = nrm[i].dot(*d);
+                if dot > 0.0 {
+                    c += Vec3::splat(col * dot);
+                }
+            }
+            let c = c.min(Vec3::ONE);
+            let b = |x: f32| (x * 128.0).min(255.0) as u32;
+            EffectVertex::new(pos[i], visos_argb(b(1.0), b(c.x), b(c.y), b(c.z)), uv[i])
+        })
+        .collect()
+}
+
+/// the strip cut into `ARMCO_CHUNK`-segment pieces (even vertex starts keep the strip parity) with bounding spheres
+fn armco_chunks(strip: &[EffectVertex]) -> Vec<ArmcoChunk> {
+    let mut out = Vec::new();
+    let mut s = 0;
+    while s + 2 < strip.len() {
+        let e = (s + 2 * ARMCO_CHUNK + 2).min(strip.len());
+        let v = strip[s..e].to_vec();
+        let (lo, hi) = v.iter().fold((Vec3::splat(f32::MAX), Vec3::splat(f32::MIN)), |(lo, hi), x| {
+            let p = x.pos;
+            (lo.min(p), hi.max(p))
+        });
+        let centre = (lo + hi) * 0.5;
+        out.push(ArmcoChunk { centre, radius: (hi - centre).length(), verts: v });
+        s += 2 * ARMCO_CHUNK;
+    }
+    out
 }
 
 #[derive(Message, Clone, Copy, Debug, Default)]
@@ -190,6 +302,7 @@ pub struct BarrierRender {
     /// the no-entry signs (`barrierStopMainOn` instances) per barrier
     signs: Vec<(usize, Entity)>,
     root: Option<Entity>,
+    armco: Vec<ArmcoChunk>,
 }
 
 /// VISOS_ColourXBOX.cpp 0x002B11C0 to D3DCOLOR (each byte doubled, saturated)
@@ -233,6 +346,7 @@ impl BarrierRender {
         for d in self.data.iter_mut().filter(|d| d.kind == 0) {
             d.init_caps();
         }
+        self.armco = load.armco.iter().flat_map(|l| armco_chunks(&armco_strip(l))).collect();
         self.initialised = true;
         self.scroll_clock = 0.0;
         self.scroll = 0.0;
@@ -316,6 +430,19 @@ impl BarrierRender {
             }
         }
         shown
+    }
+
+    /// Armco.cpp 0x00012160: the rail strips (ArmcoShader: blend 3, wrap, z test + write) whose chunks are in view
+    pub fn draw_armco(&self, visible: &impl Fn(Vec3, f32) -> bool, draw: &mut EffectDraw) {
+        if self.armco.is_empty() {
+            return;
+        }
+        let sh = EffectShader::new(EffectTexture::Scenery("Armco05".into()), 3);
+        for c in &self.armco {
+            if visible(c.centre, c.radius) {
+                draw.strip(&sh, &c.verts);
+            }
+        }
     }
 
     /// the arrow strip of 0x00109080: batches of at most 43 segments / 7 texture repeats, end points transparent
@@ -593,6 +720,7 @@ fn barrier_messages(
             commands.entity(r).despawn();
         }
         br.signs.clear();
+        br.armco.clear();
         br.data.clear();
         br.initialised = false;
         br.current = None;
@@ -609,6 +737,24 @@ fn barrier_messages(
         let model = bytes.as_deref().and_then(|d| crate::renderer::renderer_types::Model::parse(d).ok());
         let root = commands.spawn((Transform::default(), Visibility::default(), Name::new("BarrierRender"))).id();
         br.root = Some(root);
+        // Armco.cpp 0x00012290: one `armco_post` instance at every point with w == 1
+        let post_bytes = visos::file::Vcd::open("\\Scenery\\SCENERYM.VCD").ok().and_then(|v| v.get("armco_post.xmf").map(|d| d.to_vec()));
+        let post_model = post_bytes.as_deref().and_then(|d| crate::renderer::renderer_types::Model::parse(d).ok());
+        if let Some(pm) = post_model.filter(|_| l.armco.iter().any(|a| !a.points.is_empty())) {
+            let mut tex = crate::model_builder::TexSet::default();
+            crate::car_render::add_vcd_textures(&mut tex, "\\Scenery\\SCENERYT.VCD");
+            let mut b = crate::model_builder::Builder::new(&mut meshes, &mut materials, &mut images);
+            if let Some(li) = &lights {
+                b.lights = li.lights.clone();
+            }
+            let mut n = 0;
+            for p in l.armco.iter().flat_map(|a| a.points.iter()).filter(|p| p.w == 1.0) {
+                let opts = crate::model_builder::SpawnOpts { parent: Some(root), ..crate::model_builder::SpawnOpts::world() };
+                b.add_model(&mut commands, &mut tex, &pm, Mat4::from_translation(p.truncate()), &opts);
+                n += 1;
+            }
+            log::info!("armco: {} rail chunks, {n} posts", br.armco.len());
+        }
         let Some(model) = model else {
             log::warn!("barrier render: barrierStopMainOn.xmf not loaded");
             continue;
@@ -670,6 +816,7 @@ fn draw_barriers(
         }
         let visible = |c: Vec3, r: f32| v.frustum.as_ref().is_none_or(|f| f.intersects_sphere(&Sphere { center: c.into(), radius: r }, true));
         draw.set_view(v.tag);
+        br.draw_armco(&visible, &mut draw);
         let s = br.draw(v.transform.translation(), visible, &tweaks, &mut draw);
         // the no-entry sign models follow player 0's view
         if k == 0 {
@@ -697,6 +844,17 @@ mod tests {
     }
 
     #[test]
+    fn armco_strip_pairs_and_repeats() {
+        let l = ArmcoLineDraw { kind: 2, closed: false, points: (0..5).map(|i| Vec4::new(i as f32 * 16.0, 0.0, 0.0, 1.0)).collect() };
+        let s = armco_strip(&l);
+        assert_eq!(s.len(), 10);
+        assert_eq!(s[1].pos.y, ARMCO_HEIGHT);
+        // 64 m = 2 repeats
+        assert!((s[8].uv.y - 2.0).abs() < 1e-4);
+        assert!(armco_strip(&ArmcoLineDraw { kind: 1, ..l }).is_empty());
+    }
+
+    #[test]
     fn u_is_whole_thirds_of_a_repeat() {
         let d = BarrierRenderData::new(line(5, 2.9), 0).unwrap();
         // 11.6 m = 1.45 repeats -> 1.333.. (4 thirds)
@@ -707,7 +865,7 @@ mod tests {
     #[test]
     fn hit_position_along_the_current_barrier() {
         let mut br = BarrierRender::default();
-        br.init(&LoadBarrierRender { arrows: vec![line(3, 10.0)], no_entry: vec![], render: true });
+        br.init(&LoadBarrierRender { arrows: vec![line(3, 10.0)], no_entry: vec![], render: true, armco: vec![] });
         br.current = Some(0);
         br.hit(&BarrierHit { car_a: 0, material: 21, point: Vec3::new(5.0, 1.0, 3.0) });
         assert!((br.data[0].hit - 0.25).abs() < 1e-6);
@@ -723,7 +881,7 @@ mod tests {
     fn wobble_runs_out_and_clears_the_hit() {
         let mut br = BarrierRender::default();
         let tw = BarrierTweaks::default();
-        br.init(&LoadBarrierRender { arrows: vec![line(4, 5.0)], no_entry: vec![], render: true });
+        br.init(&LoadBarrierRender { arrows: vec![line(4, 5.0)], no_entry: vec![], render: true, armco: vec![] });
         br.current = Some(0);
         br.hit(&BarrierHit { car_a: 0, material: 21, point: Vec3::new(7.5, 0.0, 0.0) });
         let mut draw = EffectDraw::default();

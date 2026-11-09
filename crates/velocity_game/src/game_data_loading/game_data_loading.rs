@@ -420,8 +420,36 @@ pub struct RacePaths {
     pub race_dir: String,
 }
 
+/// DEVIATION: `tracks.ini` lists races whose directory is not in the data (Tokyo ships 3 of its 17: the missing ones
+/// have no eventdef.txt, so the grid read as all zeros = the sea plane at the origin, no road). Such a race loads
+/// the nearest shipped race of the same track instead: same type lowest RACEnn, else CIRCUIT / SPRINT / DRAG /
+/// RELAY / CRUISE in that order. Returns the race path to use (`race_path` itself when its eventdef exists).
+pub fn resolve_race_path(track_path: &str, race_path: &str) -> String {
+    let has = |rp: &str| visos::file::platform::resolve(&format!("\\{}{}eventdef.txt", track_path, rp)).is_file();
+    if has(race_path) {
+        return race_path.to_string();
+    }
+    let ty = race_path.split('\\').next().unwrap_or("").to_string();
+    let mut types = vec![ty];
+    types.extend(["CIRCUIT", "SPRINT", "DRAG", "RELAY", "CRUISE"].map(String::from));
+    for t in types {
+        let Ok(rd) = std::fs::read_dir(visos::file::platform::resolve(&format!("\\{}{}", track_path, t))) else { continue };
+        let mut names: Vec<String> = rd.flatten().map(|e| e.file_name().to_string_lossy().to_ascii_uppercase()).collect();
+        names.sort();
+        for n in names {
+            let rp = format!("{}\\{}\\", t.to_ascii_uppercase(), n);
+            if has(&rp) {
+                log::warn!("race {track_path}{race_path} has no data in this install: using {track_path}{rp}");
+                return rp;
+            }
+        }
+    }
+    race_path.to_string()
+}
+
 impl RacePaths {
     pub fn new(track_path: &str, race_path: &str) -> Self {
+        let race_path = resolve_race_path(track_path, race_path);
         RacePaths { track_dir: format!("\\{}", track_path), race_dir: format!("\\{}{}", track_path, race_path) }
     }
     /// GameDataLoading.cpp 0x000A0F30
@@ -496,10 +524,17 @@ impl CEventDefinition {
         let dir = VsFileDirectoryDetails::open(race_dir.trim_end_matches('\\')).ok()?;
         let mut f = VsTextFile::default();
         f.load(Some(&dir), "eventdef.txt").then_some(())?;
-        Some(Self::parse(&mut f, num_players))
+        // DEVIATION: a cruise eventdef's start / finish lines are the unused template ((-30,-12.5,2)..(30,-12.5,2)),
+        // so the 3.5 m pull projected the start onto a bogus line and put the car off the map (London, London2, LADown)
+        let cruise = race_dir.to_ascii_uppercase().contains("\\CRUISE\\");
+        Some(Self::parse_with(&mut f, num_players, !cruise))
     }
 
     pub fn parse(f: &mut VsTextFile, num_players: i32) -> Self {
+        Self::parse_with(f, num_players, true)
+    }
+
+    fn parse_with(f: &mut VsTextFile, num_players: i32, pull_to_line: bool) -> Self {
         let mut d = CEventDefinition { name: f.read_string().unwrap_or_default(), ..Default::default() };
         let s32 = |f: &mut VsTextFile| f.read_s32().map(|v| v.1).unwrap_or(0);
         let v3 = |f: &mut VsTextFile| f.read_f32n::<3>().map(|v| v.1).unwrap_or_default();
@@ -533,7 +568,7 @@ impl CEventDefinition {
         for p in d.start_line.iter_mut().chain(d.finish_line.iter_mut()).chain(d.start_positions.iter_mut()) {
             p[2] = -p[2];
         }
-        if let Some(&first) = d.start_positions.first() {
+        if let Some(&first) = d.start_positions.first().filter(|_| pull_to_line) {
             // VsAITools::ProjectOntoLine, then shift every grid slot so the first is 3.5 m short of the line
             let p = project_onto_line(d.start_line[0], d.start_line[1], first);
             let mut dv = [p[0] - first[0], p[1] - first[1], p[2] - first[2]];

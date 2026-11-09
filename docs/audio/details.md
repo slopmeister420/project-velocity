@@ -60,6 +60,12 @@ gear/turbo, old-id table 0x684F10), `vs_audio_rev_bands` (VsAudioRevBands, 0x4C6
   SetEmitterVolume's range check exactly like the original; LACoast AudioEmitter_5 has max distance 0.
 - Dead in this build: software mixdown path, road-noise/wheelspin events, numeric events 210/979/1314/1801.
 - Original sets only the DS listener position (no orientation/velocity); doppler factor 0.3, speed 343.3.
+  Verified in IDA 2026-11-09 (`_AUDIO_UpdateListenerM` 0x341BD0 averages front/top then calls only SetPosition
+  via 0x313B50): the original pans every positional sound by WORLD X. Deliberate deviation (user bug "player
+  car sound swings L/R"): `VoiceSystem::apply_orientation` (default true) applies the camera orientation
+  (un-flipping the x/z flip of VsAudio::update_listener) so pan is camera-relative; false = original.
+  Player engine itself (rev bands) is FLAT/2D; the panned player sounds are the positional emitters (tyres,
+  skids, drift, brakes, left/right pairs). Test `chase_camera_pan_is_heading_independent`.
 - **Frame rate.** VsAudio::Update runs once per rendered frame (GameManager::InGameUpdate 0xB7EE7) with the frame
   dt; the engine (AUDIO_Update) clamps dt to 0.05 (0 -> 1/30). The game-side steps were per rendered frame at the
   60 Hz reference (core.md "Original render rate"); the port scales them by `VsAudio::frame_scale` = clamped dt·60

@@ -272,9 +272,44 @@ pub(crate) fn raw_value(p: user_input::PadInput, keys: &ButtonInput<KeyCode>, pa
     }
 }
 
+/// port: keys the on-screen keyboard types / acts on, taken away from the pad stand-in while it is up
+fn text_keys() -> impl Iterator<Item = KeyCode> {
+    use KeyCode::*;
+    [
+        KeyA, KeyB, KeyC, KeyD, KeyE, KeyF, KeyG, KeyH, KeyI, KeyJ, KeyK, KeyL, KeyM, KeyN, KeyO, KeyP, KeyQ, KeyR, KeyS, KeyT,
+        KeyU, KeyV, KeyW, KeyX, KeyY, KeyZ, Space, Enter, NumpadEnter, Backspace, ArrowLeft, ArrowRight,
+    ]
+    .into_iter()
+}
+
+/// port: a window key event as on-screen keyboard input. Text comes from the event's `text` (layout and shift
+/// applied by the OS), the editing keys from the logical key; releases and control characters give nothing.
+pub(crate) fn translate_key(e: &bevy::input::keyboard::KeyboardInput) -> Vec<feck2::screens::common::fe_keyboard_overlay::PcKey> {
+    use bevy::input::keyboard::Key;
+    use feck2::screens::common::fe_keyboard_overlay::PcKey;
+    if !e.state.is_pressed() {
+        return Vec::new();
+    }
+    match &e.logical_key {
+        Key::Backspace => return vec![PcKey::Backspace],
+        Key::Enter => return vec![PcKey::Done],
+        Key::ArrowLeft => return vec![PcKey::Left],
+        Key::ArrowRight => return vec![PcKey::Right],
+        _ => {}
+    }
+    let text = match (&e.text, &e.logical_key) {
+        (Some(t), _) => t.as_str(),
+        (None, Key::Character(c)) => c.as_str(),
+        (None, Key::Space) => " ",
+        _ => "",
+    };
+    text.chars().filter(|c| !c.is_control()).map(PcKey::Char).collect()
+}
+
 fn run_frontend(
     time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
+    mut kbd: MessageReader<bevy::input::keyboard::KeyboardInput>,
     pads: Query<&Gamepad>,
     mut state: ResMut<FrontendState>,
     mut images: ResMut<Assets<Image>>,
@@ -308,11 +343,29 @@ fn run_frontend(
         return;
     }
     let pad = pads.iter().next();
-    let raw = |p: user_input::PadInput| raw_value(p, &keys, pad);
+    // port: the on-screen keyboard takes the PC keyboard as text (window key events), so those keys no longer
+    // drive the pad stand-in while it is up (arrow up / down, Escape, Tab, Page keys still do)
+    let typing = state.frontend.as_ref().and_then(|f| f.fe.keyboard.as_ref()).is_some_and(|k| k.active);
+    // (window events only: a hidden run has no real window input, and nothing here touches SDL / raw input)
+    let typed: Vec<_> = if typing { kbd.read().flat_map(translate_key).collect() } else { kbd.read().for_each(drop); Vec::new() };
+    let masked;
+    let keys = if typing {
+        let mut k = keys.clone();
+        for c in text_keys() {
+            k.release(c);
+            k.clear_just_pressed(c);
+        }
+        masked = k;
+        &masked
+    } else {
+        &*keys
+    };
+    let raw = |p: user_input::PadInput| raw_value(p, keys, pad);
     let st = &mut *state;
     let next = st.mapping.step(&st.pads[0], &raw);
     st.pads[0] = next;
     let mut input = feck2::feck2_manager::FeInput::default();
+    input.typed = typed;
     input.pads[0] = next;
     input.pads[1] = st.pads[1];
     let Some(f) = st.frontend.as_mut() else { return };
@@ -792,4 +845,32 @@ fn apply_options(options: Res<game_options::GameOptions>, audio: Option<ResMut<M
         options.save();
     }
     *saved = true;
+}
+
+#[cfg(test)]
+mod pc_key_tests {
+    use super::*;
+    use bevy::input::keyboard::{Key, KeyboardInput};
+    use bevy::input::ButtonState;
+    use feck2::screens::common::fe_keyboard_overlay::PcKey;
+
+    fn ev(key_code: KeyCode, logical_key: Key, text: Option<&str>, state: ButtonState) -> KeyboardInput {
+        KeyboardInput { key_code, logical_key, state, text: text.map(Into::into), repeat: false, window: Entity::PLACEHOLDER }
+    }
+
+    #[test]
+    fn window_key_events_become_keyboard_input() {
+        let p = ButtonState::Pressed;
+        assert_eq!(translate_key(&ev(KeyCode::KeyK, Key::Character("K".into()), Some("K"), p)), vec![PcKey::Char('K')]);
+        assert_eq!(translate_key(&ev(KeyCode::Space, Key::Space, Some(" "), p)), vec![PcKey::Char(' ')]);
+        assert_eq!(translate_key(&ev(KeyCode::Minus, Key::Character("_".into()), Some("_"), p)), vec![PcKey::Char('_')]);
+        assert_eq!(translate_key(&ev(KeyCode::Backspace, Key::Backspace, Some("\u{8}"), p)), vec![PcKey::Backspace]);
+        assert_eq!(translate_key(&ev(KeyCode::Enter, Key::Enter, Some("\r"), p)), vec![PcKey::Done]);
+        assert_eq!(translate_key(&ev(KeyCode::ArrowLeft, Key::ArrowLeft, None, p)), vec![PcKey::Left]);
+        assert_eq!(translate_key(&ev(KeyCode::ArrowRight, Key::ArrowRight, None, p)), vec![PcKey::Right]);
+        // releases, Escape and modifiers type nothing
+        assert!(translate_key(&ev(KeyCode::KeyK, Key::Character("K".into()), Some("K"), ButtonState::Released)).is_empty());
+        assert!(translate_key(&ev(KeyCode::Escape, Key::Escape, None, p)).is_empty());
+        assert!(translate_key(&ev(KeyCode::ShiftLeft, Key::Shift, None, p)).is_empty());
+    }
 }

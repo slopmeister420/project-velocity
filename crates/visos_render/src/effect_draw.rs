@@ -20,6 +20,8 @@ pub enum EffectTexture {
     White,
     Misc(String),
     Particle(String),
+    /// `\Scenery\SCENERYT.VCD` (Armco.cpp 0x00011C50 "ArmcoShader")
+    Scenery(String),
 }
 
 /// the stage settings a code-built shader uses (ShaderManagerBase setters, compiled by
@@ -299,6 +301,9 @@ fn texture_image(cache: &mut EffectRenderCache, images: &mut Assets<Image>, t: &
             .as_ref()
             .and_then(|v| v.get(&format!("{n}.vtf")))
             .and_then(|d| decode_any_vtf(d).ok()),
+        EffectTexture::Scenery(n) => visos::file::Vcd::open("\\Scenery\\SCENERYT.VCD")
+            .ok()
+            .and_then(|v| v.get(&format!("{n}.vtf")).and_then(|d| decode_any_vtf(d).ok())),
         EffectTexture::Particle(n) => cache
             .part
             .get_or_insert_with(|| visos::file::Vcd::open("\\Particle\\PARTTEX.VCD").ok())

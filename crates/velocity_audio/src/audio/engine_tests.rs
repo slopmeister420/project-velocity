@@ -85,6 +85,8 @@ fn positional_emitter_attenuates_and_pans() {
     a.load_group(r"\audio\vehicle\tier4\wrx\vimprrb0", None).unwrap();
     let l = a.create_listener(emitter_flags::ALIVE).unwrap();
     a.set_listener_position(l, Vec3::ZERO);
+    // camera looking along +Z, as VsAudio::update_listener hands it over (x/z flipped)
+    a.set_listener_direction(l, Vec3::new(0.0, 0.0, -1.0), Vec3::Y);
     let e = a.create_emitter(emitter_flags::ALIVE).unwrap();
     a.set_emitter_distances(e, 1.0, 100.0);
     let measure = |a: &mut AudioSystem, p: Vec3| {

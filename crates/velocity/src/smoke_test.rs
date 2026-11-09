@@ -254,6 +254,10 @@ fn watch_replay(
     }
     // 8 s after the finish (the race is in mode 2 by then: the post race menus are not ported)
     if let Some(fin) = last.5 {
+        // the end camera takes over ~1 s after the finish (PostRaceSequence state 2); results restart at ~2.5 s
+        if s.t - fin > 2.0 {
+            shot(&mut commands, &mut s, "7f_post_race_cam");
+        }
         if s.t - fin > 8.0 {
             shot(&mut commands, &mut s, "7e_post_race");
             if s.done_at.is_none() {

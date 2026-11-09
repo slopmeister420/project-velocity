@@ -300,14 +300,23 @@ impl CEvent {
     }
 
     /// the race being run: races +0x0C (`VsAIPoliceVehicle__17CB0` in the idb).
+    /// once the event is over (`current_round` past the last round: later drag rounds still call RaceOver) the
+    /// original's stored race pointer (+12) still points at the last race played, so `last_race` stands in.
     pub fn current_race(&self) -> Option<&CEventRaceEntry> {
         let r = self.races.as_ref()?;
-        let round = r.rounds.get(r.current_round as usize)?;
+        let Some(round) = r.rounds.get(r.current_round as usize) else {
+            let (ro, ra) = r.last_race?;
+            return r.rounds.get(ro as usize)?.races.get(ra as usize);
+        };
         round.races.get(round.current_race as usize)
     }
 
     pub fn current_race_mut(&mut self) -> Option<&mut CEventRaceEntry> {
         let r = self.races.as_mut()?;
+        if r.rounds.get(r.current_round as usize).is_none() {
+            let (ro, ra) = r.last_race?;
+            return r.rounds.get_mut(ro as usize)?.races.get_mut(ra as usize);
+        }
         let round = r.rounds.get_mut(r.current_round as usize)?;
         round.races.get_mut(round.current_race as usize)
     }

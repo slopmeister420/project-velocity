@@ -217,8 +217,13 @@ the set's ambient, white without a police flash). Tests `load_every_osdm_model`,
 
 **Minimap (`osd::osd_map`):** `CHUDMapConstructor` 0x7DEE0 ported exactly (square bounds over both edges,
 border pad, Bresenham edges = 255 into `[x*size+z]`, 0x80 outline pass, palette = hud map colour with
-alpha `max(index, min)`); `COSDMapRender::Update` 0xE8E70 window = 900 world units, rotated by heading + pi
-(plus a quarter turn so forward is up — the map screen model's uv orientation is assumed), blips
+alpha `max(index, min)`); `COSDMapRender::Update` 0xE8E70 window = 900 world units, heading angle a =
+`acos(body row 0 .x)`, negated when `(X x row0).y < 0`, + pi (`heading_angle`; the original map is heading-up, no
+arrow rotation, no smoothing: the car pose is the bridge-lerped one). The binary's texture matrix mirrors u
+(`Renderer 0x2AB620(-1,1,1)`); our panel angle is `panel_angle(a) = 3pi/2 - a` (FIXED 2026-11-09: the old `a - pi/2`
+mirrored z, so the map turned the wrong way except on x axis headings). Test `map_forward_is_up` renders a road at 8
+headings and asserts the road ahead is within 5 deg of screen-up (log `research/map_heading_check.log`),
+`heading_angle_values`. Shots `research/screens/fe_minimap_heading_{london,la}.png`. Blips
 `plyrblip/rvalblip/blueblip/redblip` and `nav_grid` from `OSD\OSDT.vcd`. Drawn into the `hud_map_screen` texture
 (see "3D hud").
 

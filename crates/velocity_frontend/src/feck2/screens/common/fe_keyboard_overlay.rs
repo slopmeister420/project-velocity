@@ -113,6 +113,17 @@ impl Key {
     }
 }
 
+/// port: a PC keyboard event for the overlay (translated from the window's key events by the plugin)
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PcKey {
+    Char(char),
+    Backspace,
+    Left,
+    Right,
+    /// Enter
+    Done,
+}
+
 /// the name check a screen hands in (`+0`, e.g. FEProfileSelectScreen 0x00234BF0)
 pub type Validator = fn(&[u8]) -> bool;
 
@@ -516,6 +527,48 @@ impl CFEKeyboardOverlay {
     /// FEQuickRaceTextScreen.cpp 0x0022E980 — the keyboard is up
     pub fn is_visible(&self) -> bool {
         !self.hidden
+    }
+
+    /// port (PC keyboard): whether the layouts have this character on a page (accents only when allowed); the
+    /// lower case of a letter counts as its capital
+    fn pc_allowed(&self, c: u32) -> bool {
+        if c == 32 {
+            return true;
+        }
+        if c > 255 {
+            return false;
+        }
+        let up = to_upper(c as i32);
+        let pages = if self.accents { 3 } else { 2 };
+        LAYOUTS[..pages].iter().flat_map(|p| p.iter()).flat_map(|r| r.iter()).any(|&k| k < 0x10000 && (k == c as i32 || k == up))
+    }
+
+    /// port (PC keyboard): a key from the window typed into the name, as a pad press would (same buffer, max size,
+    /// first-key clear, shift drop, DONE validation); the character is entered as typed (no shift / caps case).
+    /// returns whether it did anything
+    pub fn pc_key(&mut self, fe: &mut Feck2, key: PcKey) -> bool {
+        if self.blocked() || !self.active {
+            return false;
+        }
+        match key {
+            PcKey::Char(ch) => {
+                if !self.pc_allowed(ch as u32) {
+                    return false;
+                }
+                self.press_key(fe, ch as i32, false);
+                fe.sounds.push(GuiSound::Accept);
+            }
+            PcKey::Backspace => self.press_key(fe, KEY_BACKSPACE, true),
+            PcKey::Left => self.press_key(fe, KEY_LEFT, true),
+            PcKey::Right => self.press_key(fe, KEY_RIGHT, true),
+            PcKey::Done => {
+                self.press_key(fe, KEY_DONE, true);
+                if self.done {
+                    fe.sounds.push(GuiSound::Accept);
+                }
+            }
+        }
+        true
     }
 
     /// FEKeyboardOverlay.cpp 0x0026C790 — the cursor blinks on the game update count (`(FM+8)+24`, 24 per s)
@@ -1063,6 +1116,44 @@ mod tests {
         assert_eq!((k.row, k.col), (4, 3));
         k.press_selected(&mut fe);
         assert!(k.is_done());
+    }
+
+    #[test]
+    fn pc_keyboard_types_like_the_pad() {
+        let (mut fe, obj) = keyboard();
+        {
+            let mut k = obj.lock().unwrap();
+            k.show(&mut fe, true);
+        }
+        let mut input = crate::feck2::feck2_manager::FeInput::default();
+        input.typed = "Kurwiszon_ é€".chars().map(PcKey::Char).collect();
+        fe.update(&input, 1.0);
+        let k = obj.lock().unwrap();
+        // '€' (> 255) is refused, 'é' needs the accents page (off for the name entry), the rest as typed
+        assert_eq!(k.text(), b"Kurwiszon_ ");
+        drop(k);
+        let mut input = crate::feck2::feck2_manager::FeInput::default();
+        input.typed = vec![PcKey::Backspace, PcKey::Left, PcKey::Char('X'), PcKey::Right, PcKey::Done];
+        fe.update(&input, 2.0);
+        let k = obj.lock().unwrap();
+        // backspace, left (cursor before '_'), X inserted there, right
+        assert_eq!(k.text(), b"KurwiszonX_");
+        assert_eq!(k.pos as usize, k.text().len());
+        assert!(k.is_done());
+    }
+
+    #[test]
+    fn pc_keyboard_max_length_and_inert_when_hidden() {
+        let (mut fe, obj) = keyboard();
+        let mut k = obj.lock().unwrap();
+        assert!(!k.pc_key(&mut fe, PcKey::Char('a')), "hidden keyboard ignores keys");
+        k.show(&mut fe, true);
+        for _ in 0..40 {
+            k.pc_key(&mut fe, PcKey::Char('a'));
+        }
+        assert_eq!(k.text().len(), 15);
+        assert!(k.pc_key(&mut fe, PcKey::Char('!')));
+        assert!(!k.pc_key(&mut fe, PcKey::Char('\u{20ac}')));
     }
 
     #[test]
